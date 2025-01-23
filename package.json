@@ -46,7 +46,7 @@
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-dropdown-menu": "^2.1.1",
     "@remix-run/cloudflare": "^2.10.2",
-    "@remix-run/cloudflare-pages": "^2.10.2",
+    "@remix-run/cloudflare-pages": "^1.3.2",
     "@remix-run/node": "^2.15.2",
     "@remix-run/react": "^1.19.3",
     "@uiw/codemirror-theme-vscode": "^4.23.0",
@@ -68,6 +68,8 @@
     "react-hotkeys-hook": "^4.5.0",
     "react-markdown": "^9.0.1",
     "react-resizable-panels": "^2.0.20",
+    "react-router": "^6.14.2",
+    "react-router-dom": "^6.14.2",
     "react-toastify": "^10.0.5",
     "rehype-raw": "^7.0.0",
     "rehype-sanitize": "^6.0.0",
@@ -78,7 +80,7 @@
     "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
-    "@ai-sdk/openai": "^0.0.34",
+    "@ai-sdk/openai": "^1.1.1",
     "@blitz/eslint-plugin": "0.1.0",
     "@cloudflare/workers-types": "^4.20240620.0",
     "@remix-run/dev": "^1.1.3",
