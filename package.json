@@ -1,13 +1,13 @@
 {
-  "name": "bolt",
-  "description": "StackBlitz AI Agent",
+  "name": "Gobeze-AI",
+  "description": "Gobeze AI Agent",
   "private": true,
   "license": "MIT",
   "packageManager": "pnpm@9.4.0",
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "remix vite:build",
+    "build": "npm run build && npm run typegen && npm run typecheck",
     "dev": "remix vite:dev",
     "start": "remix-serve ./build/server/index.js",
     "test": "vitest --run",
@@ -17,7 +17,7 @@
     "lint:format": "npm run lint -- --format",
     "typecheck": "tsc",
     "typegen": "wrangler types",
-    "preview": "pnpm run build && pnpm run start"
+    "preview": "npm run build && npm run start"
   },
   "engines": {
     "node": ">=18.18.0"
