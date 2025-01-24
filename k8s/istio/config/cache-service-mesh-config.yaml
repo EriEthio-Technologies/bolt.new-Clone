@@ -1,0 +1,59 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: cache-routing
+  namespace: default
+spec:
+  hosts:
+  - "cache-service"
+  http:
+  - match:
+    - uri:
+        prefix: "/build"  # For Remix build assets
+    - uri:
+        prefix: "/cache" # For SSR cache
+    route:
+    - destination:
+        host: cache-service
+        port:
+          number: 80
+      weight: 100
+    timeout: 5s
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: "connect-failure,refused-stream,unavailable,cancelled,5xx"
+    corsPolicy:
+      allowOrigins:
+      - exact: "*"
+      allowMethods:
+      - GET
+      - HEAD
+      allowHeaders:
+      - content-type
+      - if-none-match
+      - if-modified-since
+      maxAge: "86400"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: cache-destination
+  namespace: default
+spec:
+  host: cache-service
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+    connectionPool:
+      tcp:
+        maxConnections: 1000
+        connectTimeout: 1s
+      http:
+        http2MaxRequests: 10000
+        maxRequestsPerConnection: 1000
+        maxRetries: 3
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 10s
+      baseEjectionTime: 30s 

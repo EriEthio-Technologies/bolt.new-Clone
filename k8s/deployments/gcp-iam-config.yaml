@@ -1,0 +1,41 @@
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMServiceAccount
+metadata:
+  name: remix-app-sa
+  namespace: default
+spec:
+  displayName: "Remix App Service Account"
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicy
+metadata:
+  name: remix-app-iam-policy
+  namespace: default
+spec:
+  resourceRef:
+    apiVersion: iam.cnrm.cloud.google.com/v1beta1
+    kind: IAMServiceAccount
+    name: remix-app-sa
+  bindings:
+  - role: roles/monitoring.viewer
+    members:
+    - serviceAccount:remix-app-sa@${PROJECT_ID}.iam.gserviceaccount.com
+  - role: roles/logging.logWriter
+    members:
+    - serviceAccount:remix-app-sa@${PROJECT_ID}.iam.gserviceaccount.com
+  - role: roles/storage.objectViewer
+    members:
+    - serviceAccount:remix-app-sa@${PROJECT_ID}.iam.gserviceaccount.com
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: remix-app-workload-identity
+  namespace: default
+spec:
+  member: serviceAccount:${PROJECT_ID}.svc.id.goog[default/remix-app-sa]
+  role: roles/iam.workloadIdentityUser
+  resourceRef:
+    apiVersion: iam.cnrm.cloud.google.com/v1beta1
+    kind: IAMServiceAccount
+    name: remix-app-sa 

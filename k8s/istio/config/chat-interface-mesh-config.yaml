@@ -1,0 +1,56 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: chat-interface-routing
+  namespace: default
+spec:
+  hosts:
+  - "chat-service"
+  http:
+  - match:
+    - uri:
+        prefix: "/chat"
+    route:
+    - destination:
+        host: chat-service
+        port:
+          number: 80
+      weight: 100
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+      retryOn: "connect-failure,refused-stream,unavailable,cancelled,5xx"
+    fault:
+      delay:
+        percentage:
+          value: 0
+        fixedDelay: 5s
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: chat-interface-destination
+  namespace: default
+spec:
+  host: chat-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+    connectionPool:
+      tcp:
+        maxConnections: 300
+        connectTimeout: 3s
+      http:
+        http2MaxRequests: 3000
+        maxRequestsPerConnection: 300
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 60s
+    circuitBreaker:
+      thresholds:
+        maxConnections: 200
+        maxPendingRequests: 150
+        maxRequests: 2000
+        maxRetries: 5 

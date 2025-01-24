@@ -1,0 +1,54 @@
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: at-protocol-telemetry
+  namespace: istio-system
+spec:
+  metrics:
+  - providers:
+    - name: prometheus
+    overrides:
+    # DID Resolution metrics
+    - match:
+        metric: DID_RESOLUTION_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        did_type:
+          operation: UPSERT
+        resolution_time:
+          operation: UPSERT
+        cache_hit:
+          operation: UPSERT
+    # Repository sync metrics
+    - match:
+        metric: REPO_SYNC_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        sync_type:
+          operation: UPSERT
+        sync_duration:
+          operation: UPSERT
+        sync_status:
+          operation: UPSERT
+    # Bluesky specific metrics
+    - match:
+        metric: BLUESKY_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        operation_type:
+          operation: UPSERT
+        feed_type:
+          operation: UPSERT
+        interaction_type:
+          operation: UPSERT
+  tracing:
+  - customTags:
+      did_resolution_id:
+        header:
+          name: x-did-resolution-id
+      repo_sync_id:
+        header:
+          name: x-repo-sync-id
+      bluesky_operation_id:
+        header:
+          name: x-bluesky-operation-id 

@@ -1,0 +1,48 @@
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: service-telemetry
+  namespace: istio-system
+spec:
+  metrics:
+  - providers:
+    - name: prometheus
+    overrides:
+    # Document processing metrics
+    - match:
+        metric: DOCUMENT_PROCESSING_DURATION
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        document_type:
+          operation: UPSERT
+        processing_status:
+          operation: UPSERT
+    # Version control metrics
+    - match:
+        metric: VERSION_CONTROL_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        operation_type:
+          operation: UPSERT
+        repository:
+          operation: UPSERT
+    # AT Protocol metrics
+    - match:
+        metric: AT_PROTOCOL_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        operation_type:
+          operation: UPSERT
+        did_resolution:
+          operation: UPSERT
+  tracing:
+  - customTags:
+      document_id:
+        header:
+          name: x-document-id
+      repository_id:
+        header:
+          name: x-repository-id
+      processing_type:
+        header:
+          name: x-processing-type 

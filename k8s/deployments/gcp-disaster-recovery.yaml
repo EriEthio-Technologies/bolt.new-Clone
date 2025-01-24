@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: disaster-recovery-config
+  namespace: default
+data:
+  PRIMARY_REGION: us-central1
+  BACKUP_REGIONS: |
+    us-east1
+    us-west1
+  FAILOVER_POLICY: |
+    {
+      "automatic_failover": true,
+      "failover_threshold": "300s",
+      "recovery_threshold": "180s",
+      "health_check_interval": "30s"
+    }
+---
+apiVersion: networking.gke.io/v1
+kind: MultiClusterService
+metadata:
+  name: remix-app-mcs
+  namespace: default
+spec:
+  template:
+    spec:
+      selector:
+        app: remix-app
+      ports:
+      - name: http
+        protocol: TCP
+        port: 80
+        targetPort: 3000
+  clusters:
+  - link: "//container.googleapis.com/v1/projects/${PROJECT_ID}/locations/us-central1/clusters/primary"
+    weight: 100
+  - link: "//container.googleapis.com/v1/projects/${PROJECT_ID}/locations/us-east1/clusters/dr-backup"
+    weight: 0 

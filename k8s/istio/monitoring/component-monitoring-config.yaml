@@ -1,0 +1,54 @@
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: component-telemetry
+  namespace: istio-system
+spec:
+  metrics:
+  - providers:
+    - name: prometheus
+    overrides:
+    # Process tree metrics
+    - match:
+        metric: PROCESS_TREE_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        visualization_type:
+          operation: UPSERT
+        tree_depth:
+          operation: UPSERT
+        node_count:
+          operation: UPSERT
+    # Feature request metrics
+    - match:
+        metric: FEATURE_REQUEST_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        request_type:
+          operation: UPSERT
+        priority_level:
+          operation: UPSERT
+        complexity_score:
+          operation: UPSERT
+    # Dependency management metrics
+    - match:
+        metric: DEPENDENCY_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        operation_type:
+          operation: UPSERT
+        dependency_type:
+          operation: UPSERT
+        resolution_status:
+          operation: UPSERT
+  tracing:
+  - customTags:
+      visualization_id:
+        header:
+          name: x-visualization-id
+      feature_request_id:
+        header:
+          name: x-feature-request-id
+      dependency_id:
+        header:
+          name: x-dependency-id 

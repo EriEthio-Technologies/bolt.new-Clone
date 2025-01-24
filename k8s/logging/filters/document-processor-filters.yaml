@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-document-processor-filters
+  namespace: logging
+data:
+  document-processor.conf: |
+    # Document intake metrics
+    <filter kubernetes.**>
+      @type parser
+      key_name log
+      reserve_data true
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key timestamp
+          types file_size:float,processing_time:float,page_count:integer
+        </pattern>
+      </parse>
+      tag document_processing
+    </filter>
+
+    # OCR performance metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        document_id ${record.dig("message", "document_id")}
+        file_type ${record.dig("message", "file_type")}
+        file_size ${record.dig("message", "file_size_bytes")}
+        page_count ${record.dig("message", "page_count")}
+        processing_time ${record.dig("message", "processing_time_ms")}
+        ocr_confidence ${record.dig("message", "ocr_confidence_score")}
+        language_detected ${record.dig("message", "detected_language")}
+        code_blocks_detected ${record.dig("message", "code_blocks_count")}
+        image_quality_score ${record.dig("message", "image_quality_score")}
+        dpi_resolution ${record.dig("message", "dpi_resolution")}
+      </record>
+    </filter>
+
+    # Content extraction metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        extraction_method ${record.dig("message", "extraction_method")}
+        content_type ${record.dig("message", "content_type")}
+        structured_content_ratio ${record.dig("message", "structured_ratio")}
+        table_count ${record.dig("message", "table_count")}
+        diagram_count ${record.dig("message", "diagram_count")}
+        code_snippet_count ${record.dig("message", "code_snippet_count")}
+        extraction_accuracy ${record.dig("message", "extraction_accuracy")}
+        validation_status ${record.dig("message", "validation_status")}
+      </record>
+    </filter>
+
+    # Processing pipeline metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        pipeline_stage ${record.dig("message", "pipeline_stage")}
+        stage_duration ${record.dig("message", "stage_duration_ms")}
+        queue_time ${record.dig("message", "queue_time_ms")}
+        retry_count ${record.dig("message", "retry_count")}
+        error_type ${record.dig("message", "error_type")}
+        worker_id ${record.dig("message", "worker_id")}
+        batch_id ${record.dig("message", "batch_id")}
+        priority_level ${record.dig("message", "priority_level")}
+      </record>
+    </filter> 

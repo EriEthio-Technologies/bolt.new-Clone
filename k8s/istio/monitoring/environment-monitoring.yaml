@@ -1,0 +1,43 @@
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: environment-telemetry
+  namespace: istio-system
+spec:
+  selector:
+    matchLabels:
+      istio: monitoring
+  tracing:
+  - randomSamplingPercentage: 100.0
+    providers:
+    - name: jaeger
+    customTags:
+      environment:
+        literal:
+          value: ${ENV_TYPE}
+  metrics:
+  - providers:
+    - name: prometheus
+    overrides:
+    # Environment metrics
+    - match:
+        metric: ENV_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        env_type:
+          operation: UPSERT
+        deployment_version:
+          operation: UPSERT
+        build_id:
+          operation: UPSERT
+    # Resource metrics
+    - match:
+        metric: ENV_RESOURCES
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        memory_usage:
+          operation: UPSERT
+        cpu_usage:
+          operation: UPSERT
+        node_count:
+          operation: UPSERT 

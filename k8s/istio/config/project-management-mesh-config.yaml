@@ -1,0 +1,63 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: project-management-routing
+  namespace: default
+spec:
+  hosts:
+  - "project-management-service"
+  http:
+  - match:
+    - uri:
+        prefix: "/projects"
+    route:
+    - destination:
+        host: project-management-service
+        port:
+          number: 80
+      weight: 100
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+      retryOn: "connect-failure,refused-stream,unavailable,cancelled,5xx"
+    corsPolicy:
+      allowOrigins:
+      - exact: "*"
+      allowMethods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      allowHeaders:
+      - content-type
+      - authorization
+      maxAge: "24h"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: project-management-destination
+  namespace: default
+spec:
+  host: project-management-service
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+    connectionPool:
+      tcp:
+        maxConnections: 250
+        connectTimeout: 3s
+      http:
+        http2MaxRequests: 2500
+        maxRequestsPerConnection: 250
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 60s
+    circuitBreaker:
+      thresholds:
+        maxConnections: 200
+        maxPendingRequests: 120
+        maxRequests: 2000
+        maxRetries: 3 

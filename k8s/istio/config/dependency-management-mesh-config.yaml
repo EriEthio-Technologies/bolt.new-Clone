@@ -1,0 +1,61 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: dependency-management-routing
+  namespace: default
+spec:
+  hosts:
+  - "dependency-manager-service"
+  http:
+  - match:
+    - uri:
+        prefix: "/dependencies"
+    route:
+    - destination:
+        host: dependency-manager-service
+        port:
+          number: 80
+      weight: 100
+    timeout: 35s
+    retries:
+      attempts: 3
+      perTryTimeout: 12s
+      retryOn: "connect-failure,refused-stream,unavailable,cancelled,5xx"
+    corsPolicy:
+      allowOrigins:
+      - exact: "*"
+      allowMethods:
+      - GET
+      - POST
+      allowHeaders:
+      - content-type
+      - authorization
+      maxAge: "24h"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: dependency-management-destination
+  namespace: default
+spec:
+  host: dependency-manager-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+    connectionPool:
+      tcp:
+        maxConnections: 200
+        connectTimeout: 3s
+      http:
+        http2MaxRequests: 2000
+        maxRequestsPerConnection: 200
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 45s
+    circuitBreaker:
+      thresholds:
+        maxConnections: 160
+        maxPendingRequests: 120
+        maxRequests: 1600
+        maxRetries: 3 

@@ -1,0 +1,72 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: document-processing-routing
+  namespace: default
+spec:
+  hosts:
+  - "document-processor-service"
+  http:
+  - match:
+    - uri:
+        prefix: "/process"
+    route:
+    - destination:
+        host: document-processor-service
+        port:
+          number: 80
+      weight: 100
+    timeout: 60s
+    retries:
+      attempts: 3
+      perTryTimeout: 20s
+      retryOn: "connect-failure,refused-stream,unavailable,cancelled,5xx"
+    corsPolicy:
+      allowOrigins:
+      - exact: "*"
+      allowMethods:
+      - POST
+      - OPTIONS
+      allowHeaders:
+      - content-type
+      - authorization
+      maxAge: "24h"
+  - match:
+    - uri:
+        prefix: "/ocr"
+    route:
+    - destination:
+        host: ocr-service
+        port:
+          number: 80
+      weight: 100
+    timeout: 120s
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: document-processing-destination
+  namespace: default
+spec:
+  host: document-processor-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_REQUEST
+    connectionPool:
+      tcp:
+        maxConnections: 200
+        connectTimeout: 5s
+      http:
+        http2MaxRequests: 2000
+        maxRequestsPerConnection: 200
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 60s
+      maxEjectionPercent: 50
+    circuitBreaker:
+      thresholds:
+        maxConnections: 150
+        maxPendingRequests: 100
+        maxRequests: 1500
+        maxRetries: 3 

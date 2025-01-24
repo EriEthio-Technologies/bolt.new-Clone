@@ -1,0 +1,52 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: at-protocol-routing
+  namespace: default
+spec:
+  hosts:
+  - "api.atproto.ai"
+  gateways:
+  - at-protocol-gateway
+  http:
+  - match:
+    - uri:
+        prefix: "/xrpc/"
+    route:
+    - destination:
+        host: at-protocol-service
+        port:
+          number: 80
+      weight: 100
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: "connect-failure,refused-stream,unavailable,cancelled,resource-exhausted"
+    timeout: 10s
+    fault:
+      delay:
+        percentage:
+          value: 0
+        fixedDelay: 5s
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: at-protocol-destination
+  namespace: default
+spec:
+  host: at-protocol-service
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+    connectionPool:
+      tcp:
+        maxConnections: 100
+        connectTimeout: 5s
+      http:
+        http2MaxRequests: 1000
+        maxRequestsPerConnection: 100
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s 

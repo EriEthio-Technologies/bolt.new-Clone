@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: log-aggregator
+  namespace: logging
+spec:
+  selector:
+    app: log-aggregator
+  ports:
+  - name: forward
+    port: 24224
+    targetPort: forward
+  - name: metrics
+    port: 24231
+    targetPort: metrics 

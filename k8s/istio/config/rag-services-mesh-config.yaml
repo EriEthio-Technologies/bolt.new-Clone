@@ -1,0 +1,62 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: rag-services-routing
+  namespace: default
+spec:
+  hosts:
+  - "rag-service"
+  http:
+  - match:
+    - uri:
+        prefix: "/retrieve"
+    route:
+    - destination:
+        host: rag-retrieval-service
+        port:
+          number: 80
+      weight: 100
+    timeout: 20s
+    retries:
+      attempts: 3
+      perTryTimeout: 5s
+      retryOn: "connect-failure,refused-stream,unavailable,cancelled,5xx"
+  - match:
+    - uri:
+        prefix: "/embed"
+    route:
+    - destination:
+        host: rag-embedding-service
+        port:
+          number: 80
+      weight: 100
+    timeout: 15s
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: rag-services-destination
+  namespace: default
+spec:
+  host: rag-service
+  subsets:
+  - name: retrieval
+    labels:
+      version: v1
+  - name: embedding
+    labels:
+      version: v1
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+    connectionPool:
+      tcp:
+        maxConnections: 200
+        connectTimeout: 3s
+      http:
+        http2MaxRequests: 2000
+        maxRequestsPerConnection: 200
+    outlierDetection:
+      consecutive5xxErrors: 3
+      interval: 20s
+      baseEjectionTime: 30s 

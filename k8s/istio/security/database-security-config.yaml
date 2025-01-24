@@ -1,0 +1,38 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: database-security-policy
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: database-service
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/default/sa/application-service"]
+        namespaces: ["default"]
+    to:
+    - operation:
+        ports: ["5432"]
+        methods: ["CONNECT"]
+    when:
+    - key: request.headers[db-access-token]
+      values: ["${DB_ACCESS_TOKEN}"]
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: database-mtls-policy
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: database-service
+  mtls:
+    mode: STRICT
+  portLevelMtls:
+    5432:
+      mode: STRICT
+    6379:
+      mode: STRICT 

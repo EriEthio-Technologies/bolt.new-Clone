@@ -1,0 +1,45 @@
+apiVersion: audit.k8s.io/v1
+kind: Policy
+metadata:
+  name: remix-app-audit-policy
+spec:
+  rules:
+  # Log all requests at the Metadata level
+  - level: Metadata
+    resources:
+    - group: ""
+      resources: ["secrets", "configmaps"]
+  
+  # Log all write operations at the RequestResponse level
+  - level: RequestResponse
+    verbs: ["create", "update", "patch", "delete"]
+    resources:
+    - group: ""
+      resources: ["pods", "services", "deployments"]
+    - group: "networking.k8s.io"
+      resources: ["ingresses"]
+    - group: "apps"
+      resources: ["deployments", "statefulsets"]
+  
+  # Log authentication and authorization at the RequestResponse level
+  - level: RequestResponse
+    users: ["system:serviceaccount:*"]
+    resources:
+    - group: "authentication.k8s.io"
+      resources: ["*"]
+    - group: "authorization.k8s.io"
+      resources: ["*"]
+---
+apiVersion: logging.googleapis.com/v1
+kind: AuditConfig
+metadata:
+  name: remix-app-audit-logging
+  namespace: default
+spec:
+  service: k8s.io
+  auditLogConfigs:
+  - logType: ADMIN_READ
+  - logType: DATA_WRITE
+  - logType: DATA_READ
+  exemptedMembers:
+  - "serviceAccount:${PROJECT_ID}.svc.id.goog[monitoring/monitoring-viewer]" 

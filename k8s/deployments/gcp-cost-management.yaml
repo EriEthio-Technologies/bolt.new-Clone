@@ -1,0 +1,28 @@
+apiVersion: billing.cnrm.cloud.google.com/v1beta1
+kind: BillingBudget
+metadata:
+  name: remix-app-budget
+  namespace: default
+spec:
+  amount:
+    specifiedAmount:
+      currencyCode: "USD"
+      units: "1000"  # $1000 monthly budget
+  budgetFilter:
+    projects:
+    - "projects/${PROJECT_ID}"
+    services:
+    - "compute.googleapis.com"
+    - "container.googleapis.com"
+    - "cloudfunctions.googleapis.com"
+  thresholdRules:
+  - spendBasis: CURRENT_SPEND
+    thresholdPercent: 0.5  # Alert at 50%
+  - spendBasis: CURRENT_SPEND
+    thresholdPercent: 0.8  # Alert at 80%
+  - spendBasis: CURRENT_SPEND
+    thresholdPercent: 1.0  # Alert at 100%
+  notificationsRule:
+    monitoringNotificationChannels:
+    - "projects/${PROJECT_ID}/notificationChannels/${NOTIFICATION_CHANNEL_ID}"
+    disableDefaultIamRecipients: false 

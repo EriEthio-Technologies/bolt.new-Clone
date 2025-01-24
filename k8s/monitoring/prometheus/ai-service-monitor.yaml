@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ai-metrics-monitor
+  namespace: monitoring
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: ai-metrics-exporter
+  endpoints:
+  - port: metrics
+    interval: 15s
+    scrapeTimeout: 14s
+  namespaceSelector:
+    matchNames:
+      - monitoring 

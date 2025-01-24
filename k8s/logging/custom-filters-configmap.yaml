@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-custom-filters
+  namespace: logging
+data:
+  custom-filters.conf: |
+    # RAG operation logs
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        operation_type ${record.dig("message", "operation_type") || "unknown"}
+        rag_latency ${record.dig("message", "latency_ms")}
+        context_quality ${record.dig("message", "context_quality_score")}
+        vector_store_status ${record.dig("message", "vector_store_status")}
+      </record>
+    </filter>
+
+    # Model inference logs
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        model_version ${record.dig("message", "model_version") || "unknown"}
+        inference_time ${record.dig("message", "inference_time_ms")}
+        token_count ${record.dig("message", "token_count")}
+        success_rate ${record.dig("message", "success_rate")}
+      </record>
+    </filter>
+
+    # Error tracking
+    <filter kubernetes.**>
+      @type grep
+      <regexp>
+        key level
+        pattern /error|ERROR|Error/
+      </regexp>
+    </filter>
+
+    # Add severity levels
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        severity ${
+          case record["level"]
+          when "ERROR", "error" then "ERROR"
+          when "WARN", "warn" then "WARNING"
+          when "INFO", "info" then "INFO"
+          when "DEBUG", "debug" then "DEBUG"
+          else "DEFAULT"
+          end
+        }
+      </record>
+    </filter> 

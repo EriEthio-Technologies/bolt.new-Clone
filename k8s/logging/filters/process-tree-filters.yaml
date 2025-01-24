@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-process-tree-filters
+  namespace: logging
+data:
+  process-tree.conf: |
+    # Process tree operations
+    <filter kubernetes.**>
+      @type parser
+      key_name log
+      reserve_data true
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key timestamp
+          types render_time:float,node_count:integer
+        </pattern>
+      </parse>
+      tag process_tree
+    </filter>
+
+    # Visualization metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        tree_depth ${record.dig("message", "tree_depth")}
+        node_count ${record.dig("message", "node_count")}
+        edge_count ${record.dig("message", "edge_count")}
+        render_time ${record.dig("message", "render_time_ms")}
+        interaction_count ${record.dig("message", "interaction_count")}
+        update_frequency ${record.dig("message", "update_frequency")}
+        complexity_score ${record.dig("message", "complexity_score")}
+      </record>
+    </filter>
+
+    # User interaction metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        interaction_type ${record.dig("message", "interaction_type")}
+        response_time ${record.dig("message", "response_time_ms")}
+        action_success ${record.dig("message", "action_success")}
+        viewport_size ${record.dig("message", "viewport_size")}
+        zoom_level ${record.dig("message", "zoom_level")}
+      </record>
+    </filter> 

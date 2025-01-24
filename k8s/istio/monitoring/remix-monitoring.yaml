@@ -1,0 +1,52 @@
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: remix-telemetry
+  namespace: istio-system
+spec:
+  metrics:
+  - providers:
+    - name: prometheus
+    overrides:
+    # SSR metrics
+    - match:
+        metric: REMIX_SSR_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        route:
+          operation: UPSERT
+        render_time:
+          operation: UPSERT
+        cache_status:
+          operation: UPSERT
+    # Asset serving metrics
+    - match:
+        metric: REMIX_ASSET_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        asset_type:
+          operation: UPSERT
+        cache_hit:
+          operation: UPSERT
+        response_size:
+          operation: UPSERT
+    # Hydration metrics
+    - match:
+        metric: REMIX_HYDRATION
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        hydration_time:
+          operation: UPSERT
+        route_id:
+          operation: UPSERT
+  tracing:
+  - customTags:
+      remix_route:
+        header:
+          name: x-remix-route
+      remix_build_hash:
+        header:
+          name: x-remix-build
+      remix_loader_id:
+        header:
+          name: x-remix-loader 

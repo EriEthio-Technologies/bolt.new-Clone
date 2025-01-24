@@ -1,0 +1,60 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: environment-circuit-breakers
+  namespace: default
+spec:
+  host: "*"
+  trafficPolicy: {}
+  subsets:
+  # Development circuit breakers
+  - name: development
+    labels:
+      environment: development
+    trafficPolicy:
+      connectionPool:
+        tcp:
+          maxConnections: 1000
+          connectTimeout: 5s
+        http:
+          maxRequestsPerConnection: 100
+          maxRetries: 5
+      outlierDetection:
+        consecutive5xxErrors: 10
+        interval: 30s
+        baseEjectionTime: 30s
+        maxEjectionPercent: 50
+  # Staging circuit breakers
+  - name: staging
+    labels:
+      environment: staging
+    trafficPolicy:
+      connectionPool:
+        tcp:
+          maxConnections: 2000
+          connectTimeout: 3s
+        http:
+          maxRequestsPerConnection: 200
+          maxRetries: 3
+      outlierDetection:
+        consecutive5xxErrors: 7
+        interval: 20s
+        baseEjectionTime: 45s
+        maxEjectionPercent: 50
+  # Production circuit breakers
+  - name: production
+    labels:
+      environment: production
+    trafficPolicy:
+      connectionPool:
+        tcp:
+          maxConnections: 5000
+          connectTimeout: 1s
+        http:
+          maxRequestsPerConnection: 500
+          maxRetries: 2
+      outlierDetection:
+        consecutive5xxErrors: 5
+        interval: 10s
+        baseEjectionTime: 60s
+        maxEjectionPercent: 50 

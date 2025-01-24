@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-aggregator
+  namespace: logging
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: log-aggregator
+  template:
+    metadata:
+      labels:
+        app: log-aggregator
+    spec:
+      containers:
+      - name: aggregator
+        image: gcr.io/${PROJECT_ID}/log-aggregator:latest
+        ports:
+        - containerPort: 24224
+          name: forward
+        - containerPort: 24231
+          name: metrics
+        env:
+        - name: AGGREGATION_BUFFER_SIZE
+          value: "10000"
+        - name: FLUSH_INTERVAL
+          value: "60s"
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 512Mi
+        volumeMounts:
+        - name: aggregator-config
+          mountPath: /etc/fluent/config.d/
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: metrics
+          initialDelaySeconds: 10
+          periodSeconds: 30
+      volumes:
+      - name: aggregator-config
+        configMap:
+          name: log-aggregator-config 

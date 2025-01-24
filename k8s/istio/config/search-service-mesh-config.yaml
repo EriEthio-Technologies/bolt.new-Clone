@@ -1,0 +1,45 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: search-routing
+  namespace: default
+spec:
+  hosts:
+  - "search-service"
+  http:
+  - match:
+    - uri:
+        prefix: "/search"
+    route:
+    - destination:
+        host: search-service
+        port:
+          number: 80
+      weight: 100
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+      retryOn: "connect-failure,refused-stream,unavailable,cancelled,5xx"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: search-destination
+  namespace: default
+spec:
+  host: search-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_REQUEST
+    connectionPool:
+      tcp:
+        maxConnections: 400
+        connectTimeout: 3s
+      http:
+        http2MaxRequests: 4000
+        maxRequestsPerConnection: 400
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 45s 

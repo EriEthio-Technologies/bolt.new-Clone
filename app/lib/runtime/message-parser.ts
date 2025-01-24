@@ -1,7 +1,7 @@
-import type { ActionType, BoltAction, BoltActionData, FileAction, ShellAction } from '~/types/actions';
-import type { BoltArtifactData } from '~/types/artifact';
-import { createScopedLogger } from '~/utils/logger';
-import { unreachable } from '~/utils/unreachable';
+import type { ActionType, BoltAction, BoltActionData, FileAction, ShellAction } from '../../../src/types/actions';
+import type { BoltArtifactData } from '../../../src/types/artifact';
+import { createScopedLogger } from '../../../src/utils/logger';
+import { unreachable } from '../../../src/utils/unreachable';
 
 const ARTIFACT_TAG_OPEN = '<boltArtifact';
 const ARTIFACT_TAG_CLOSE = '</boltArtifact>';

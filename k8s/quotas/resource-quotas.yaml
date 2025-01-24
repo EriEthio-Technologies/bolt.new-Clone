@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: gobeze-ai-quota
+  namespace: gobeze-ai
+spec:
+  hard:
+    requests.cpu: "8"
+    requests.memory: 16Gi
+    limits.cpu: "16"
+    limits.memory: 32Gi
+    pods: "20"
+    services: "10"
+    persistentvolumeclaims: "10"
+    secrets: "20"
+    configmaps: "20" 

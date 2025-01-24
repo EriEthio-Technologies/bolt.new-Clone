@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-sync-config
+  namespace: default
+data:
+  SYNC_INTERVAL: "300s"  # 5 minutes
+  SYNC_BATCH_SIZE: "1000"
+  SYNC_TIMEOUT: "600s"
+  SYNC_RETRY_COUNT: "3"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: data-sync-job
+  namespace: default
+spec:
+  schedule: "*/5 * * * *"  # Every 5 minutes
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: data-sync
+            image: gcr.io/${PROJECT_ID}/data-sync:${VERSION}
+            envFrom:
+            - configMapRef:
+                name: data-sync-config
+            resources:
+              requests:
+                cpu: 200m
+                memory: 256Mi
+              limits:
+                cpu: 500m
+                memory: 512Mi
+          restartPolicy: OnFailure 

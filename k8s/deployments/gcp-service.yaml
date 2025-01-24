@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: remix-app-service
+  namespace: default
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+    cloud.google.com/backend-config: '{"default": "remix-app-backend-config"}'
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  - port: 9090
+    targetPort: 9090
+    protocol: TCP
+    name: metrics
+  selector:
+    app: remix-app
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: remix-app-backend-config
+  namespace: default
+spec:
+  healthCheck:
+    checkIntervalSec: 15
+    timeoutSec: 5
+    healthyThreshold: 2
+    unhealthyThreshold: 3
+    type: HTTP
+    requestPath: /health
+    port: 3000
+  cdn:
+    enabled: true
+    cachePolicy:
+      includeHost: true
+      includeProtocol: true
+      includeQueryString: false
+  securityPolicy:
+    name: "remix-app-security-policy" 

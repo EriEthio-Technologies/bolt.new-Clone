@@ -1,0 +1,62 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: feature-request-routing
+  namespace: default
+spec:
+  hosts:
+  - "feature-request-service"
+  http:
+  - match:
+    - uri:
+        prefix: "/feature"
+    route:
+    - destination:
+        host: feature-request-service
+        port:
+          number: 80
+      weight: 100
+    timeout: 40s
+    retries:
+      attempts: 3
+      perTryTimeout: 15s
+      retryOn: "connect-failure,refused-stream,unavailable,cancelled,5xx"
+    corsPolicy:
+      allowOrigins:
+      - exact: "*"
+      allowMethods:
+      - GET
+      - POST
+      - PUT
+      allowHeaders:
+      - content-type
+      - authorization
+      maxAge: "24h"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: feature-request-destination
+  namespace: default
+spec:
+  host: feature-request-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_REQUEST
+    connectionPool:
+      tcp:
+        maxConnections: 180
+        connectTimeout: 3s
+      http:
+        http2MaxRequests: 1800
+        maxRequestsPerConnection: 180
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 60s
+    circuitBreaker:
+      thresholds:
+        maxConnections: 150
+        maxPendingRequests: 100
+        maxRequests: 1500
+        maxRetries: 3 

@@ -1,0 +1,79 @@
+apiVersion: monitoring.googleapis.com/v1
+kind: MonitoringConfig
+metadata:
+  name: remix-app-monitoring
+  namespace: default
+spec:
+  components:
+    # Application metrics
+    applicationMetrics:
+      enabled: true
+      collectionInterval: "60s"
+      metrics:
+      - name: "remix_request_duration_seconds"
+        type: DISTRIBUTION
+        description: "Request duration in seconds"
+      - name: "remix_requests_total"
+        type: COUNTER
+        description: "Total number of requests"
+      - name: "at_protocol_operations_total"
+        type: COUNTER
+        description: "Total AT Protocol operations"
+    
+    # Resource metrics
+    resourceMetrics:
+      enabled: true
+      collectionInterval: "30s"
+      resources:
+      - type: "gke_container"
+        resourceLabels:
+          container_name: "remix-app"
+      metrics:
+      - name: "container/memory/usage_bytes"
+      - name: "container/cpu/usage_time"
+      - name: "container/network/received_bytes_count"
+      - name: "container/network/sent_bytes_count"
+
+    # Log-based metrics
+    loggingMetrics:
+      enabled: true
+      metrics:
+      - name: "error_count"
+        filter: 'severity>=ERROR'
+        description: "Count of error logs"
+      - name: "at_protocol_errors"
+        filter: 'severity>=ERROR AND jsonPayload.service="at-protocol"'
+        description: "AT Protocol error count"
+---
+apiVersion: monitoring.googleapis.com/v1
+kind: AlertPolicy
+metadata:
+  name: remix-app-alerts
+  namespace: default
+spec:
+  displayName: "Remix App Alerts"
+  conditions:
+  - displayName: "High Error Rate"
+    conditionThreshold:
+      filter: 'metric.type="custom.googleapis.com/error_count"'
+      comparison: COMPARISON_GT
+      thresholdValue: 100
+      duration: "300s"
+      trigger:
+        count: 1
+  - displayName: "High Latency"
+    conditionThreshold:
+      filter: 'metric.type="custom.googleapis.com/remix_request_duration_seconds"'
+      comparison: COMPARISON_GT
+      thresholdValue: 2.0
+      duration: "300s"
+      trigger:
+        count: 1
+  - displayName: "Memory Usage"
+    conditionThreshold:
+      filter: 'metric.type="container/memory/usage_bytes"'
+      comparison: COMPARISON_GT
+      thresholdValue: 900000000  # 900MB
+      duration: "300s"
+      trigger:
+        count: 1 

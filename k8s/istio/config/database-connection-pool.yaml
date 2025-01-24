@@ -1,0 +1,43 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: database-connection-pool
+  namespace: default
+spec:
+  host: database-service
+  trafficPolicy:
+    loadBalancer:
+      consistentHash:
+        httpCookie:
+          name: database_session
+          ttl: 3600s
+    connectionPool:
+      tcp:
+        maxConnections: 500
+        connectTimeout: 3s
+        tcpKeepalive:
+          time: 7200s
+          interval: 75s
+      http:
+        http2MaxRequests: 5000
+        maxRequestsPerConnection: 500
+        idleTimeout: 30s
+        h2UpgradePolicy: DEFAULT
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 60s
+      maxEjectionPercent: 50
+  subsets:
+  - name: primary
+    labels:
+      role: primary
+    trafficPolicy:
+      loadBalancer:
+        simple: ROUND_ROBIN
+  - name: replica
+    labels:
+      role: replica
+    trafficPolicy:
+      loadBalancer:
+        simple: LEAST_REQUEST 

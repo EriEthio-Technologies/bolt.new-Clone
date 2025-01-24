@@ -1,0 +1,54 @@
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: remix-server-telemetry
+  namespace: istio-system
+spec:
+  metrics:
+  - providers:
+    - name: prometheus
+    overrides:
+    # Server runtime metrics
+    - match:
+        metric: REMIX_SERVER_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        node_version:
+          operation: UPSERT
+        memory_usage:
+          operation: UPSERT
+        cpu_usage:
+          operation: UPSERT
+    # Build metrics
+    - match:
+        metric: REMIX_BUILD_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        build_duration:
+          operation: UPSERT
+        build_success:
+          operation: UPSERT
+        build_errors:
+          operation: UPSERT
+    # ESM module metrics
+    - match:
+        metric: REMIX_MODULE_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        module_type:
+          operation: UPSERT
+        load_time:
+          operation: UPSERT
+        cache_status:
+          operation: UPSERT
+  tracing:
+  - customTags:
+      server_version:
+        header:
+          name: x-server-version
+      node_env:
+        header:
+          name: x-node-env
+      build_id:
+        header:
+          name: x-build-id 

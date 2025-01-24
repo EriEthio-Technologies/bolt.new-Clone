@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: gobeze-ai
+data:
+  NODE_ENV: "production"
+  API_VERSION: "v1"
+  RATE_LIMIT_WINDOW: "15m"
+  RATE_LIMIT_MAX_REQUESTS: "100"
+  ENABLE_SWAGGER: "true"
+  LOG_LEVEL: "info"
+  METRICS_ENABLED: "true" 

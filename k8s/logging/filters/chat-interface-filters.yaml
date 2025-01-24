@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-chat-interface-filters
+  namespace: logging
+data:
+  chat-interface.conf: |
+    # User interaction logs
+    <filter kubernetes.**>
+      @type parser
+      key_name log
+      reserve_data true
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key timestamp
+          types response_time:float,token_count:integer,context_size:integer
+        </pattern>
+      </parse>
+      tag chat_interaction
+    </filter>
+
+    # Chat session metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        session_id ${record.dig("message", "session_id")}
+        user_id ${record.dig("message", "user_id")}
+        interaction_type ${record.dig("message", "interaction_type")}
+        response_time ${record.dig("message", "response_time_ms")}
+        token_count ${record.dig("message", "token_count")}
+        context_size ${record.dig("message", "context_size_bytes")}
+        prompt_length ${record.dig("message", "prompt_length")}
+        completion_length ${record.dig("message", "completion_length")}
+        conversation_turns ${record.dig("message", "conversation_turns")}
+        user_satisfaction_score ${record.dig("message", "satisfaction_score")}
+      </record>
+    </filter>
+
+    # Error handling metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        error_type ${record.dig("message", "error_type")}
+        error_source ${record.dig("message", "error_source")}
+        recovery_action ${record.dig("message", "recovery_action")}
+        error_impact ${record.dig("message", "impact_level")}
+        retry_count ${record.dig("message", "retry_count")}
+        fallback_triggered ${record.dig("message", "fallback_triggered")}
+      </record>
+    </filter>
+
+    # Real-time analytics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        concurrent_users ${record.dig("message", "concurrent_users")}
+        active_sessions ${record.dig("message", "active_sessions")}
+        queue_length ${record.dig("message", "queue_length")}
+        average_response_time ${record.dig("message", "avg_response_time_ms")}
+        peak_memory_usage ${record.dig("message", "peak_memory_mb")}
+      </record>
+    </filter> 

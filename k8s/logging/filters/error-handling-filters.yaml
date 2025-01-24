@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-error-handling-filters
+  namespace: logging
+data:
+  error-handling.conf: |
+    # Error tracking metrics
+    <filter kubernetes.**>
+      @type parser
+      key_name log
+      reserve_data true
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key timestamp
+          types error_time:float,stack_depth:integer,recovery_time:float
+        </pattern>
+      </parse>
+      tag error_handling
+    </filter>
+
+    # Exception details
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        error_id ${record.dig("message", "error_id")}
+        error_type ${record.dig("message", "error_type")}
+        error_message ${record.dig("message", "error_message")}
+        stack_trace ${record.dig("message", "stack_trace")}
+        source_file ${record.dig("message", "source_file")}
+        line_number ${record.dig("message", "line_number")}
+        component_name ${record.dig("message", "component_name")}
+        severity_level ${record.dig("message", "severity_level")}
+      </record>
+    </filter>
+
+    # Error context
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        user_context ${record.dig("message", "user_context")}
+        request_context ${record.dig("message", "request_context")}
+        system_state ${record.dig("message", "system_state")}
+        environment_variables ${record.dig("message", "env_vars")}
+        related_errors ${record.dig("message", "related_error_ids")}
+        previous_actions ${record.dig("message", "previous_actions")}
+      </record>
+    </filter>
+
+    # Recovery metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        recovery_strategy ${record.dig("message", "recovery_strategy")}
+        recovery_success ${record.dig("message", "recovery_success")}
+        recovery_time ${record.dig("message", "recovery_time_ms")}
+        retry_count ${record.dig("message", "retry_count")}
+        fallback_triggered ${record.dig("message", "fallback_triggered")}
+        circuit_breaker_status ${record.dig("message", "circuit_breaker_status")}
+      </record>
+    </filter> 

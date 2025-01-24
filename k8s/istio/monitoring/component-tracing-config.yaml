@@ -1,0 +1,51 @@
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: component-tracing
+  namespace: istio-system
+spec:
+  tracing:
+  - providers:
+    - name: jaeger
+    randomSamplingPercentage: 100.0
+    customTags:
+      # Process tree tags
+      tree_type:
+        header:
+          name: x-tree-type
+      visualization_mode:
+        header:
+          name: x-visualization-mode
+      interaction_type:
+        header:
+          name: x-interaction-type
+      
+      # Feature request tags
+      request_stage:
+        header:
+          name: x-request-stage
+      priority_level:
+        header:
+          name: x-priority-level
+      estimation_status:
+        header:
+          name: x-estimation-status
+      
+      # Dependency management tags
+      dependency_type:
+        header:
+          name: x-dependency-type
+      resolution_stage:
+        header:
+          name: x-resolution-stage
+      compatibility_status:
+        header:
+          name: x-compatibility-status
+  
+  accessLogging:
+  - providers:
+    - name: envoy
+    filter:
+      expression: "response.code >= 400 || response.duration > 25000"
+    match:
+      mode: CLIENT_AND_SERVER 

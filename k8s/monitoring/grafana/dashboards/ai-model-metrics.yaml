@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-ai-metrics
+  namespace: monitoring
+data:
+  ai-metrics.json: |
+    {
+      "annotations": {
+        "list": []
+      },
+      "editable": true,
+      "panels": [
+        {
+          "title": "Model Inference Latency",
+          "type": "graph",
+          "datasource": "prometheus",
+          "targets": [
+            {
+              "expr": "rate(model_inference_duration_seconds_sum[5m]) / rate(model_inference_duration_seconds_count[5m])",
+              "legendFormat": "{{model_version}}"
+            }
+          ],
+          "yaxes": [
+            {
+              "format": "s",
+              "label": "Duration"
+            }
+          ]
+        },
+        {
+          "title": "Model Accuracy Score",
+          "type": "gauge",
+          "datasource": "prometheus",
+          "targets": [
+            {
+              "expr": "model_accuracy_score",
+              "legendFormat": "{{model_version}}"
+            }
+          ],
+          "options": {
+            "minValue": 0,
+            "maxValue": 100,
+            "thresholds": [
+              { "value": 85, "color": "red" },
+              { "value": 90, "color": "yellow" },
+              { "value": 95, "color": "green" }
+            ]
+          }
+        },
+        {
+          "title": "Code Generation Success Rate",
+          "type": "graph",
+          "datasource": "prometheus",
+          "targets": [
+            {
+              "expr": "sum(rate(code_generation_total{status=\"success\"}[5m])) / sum(rate(code_generation_total[5m])) * 100",
+              "legendFormat": "Success Rate %"
+            }
+          ]
+        },
+        {
+          "title": "Token Usage",
+          "type": "graph",
+          "datasource": "prometheus",
+          "targets": [
+            {
+              "expr": "sum(rate(token_usage_total[5m])) by (model)",
+              "legendFormat": "{{model}}"
+            }
+          ]
+        }
+      ]
+    } 

@@ -1,0 +1,44 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: database-alerts
+  namespace: monitoring
+spec:
+  groups:
+  - name: database.alerts
+    rules:
+    - alert: DatabaseHighConnectionCount
+      expr: database_connections > 250
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: High database connection count
+        description: Database connections exceed 250 for 5 minutes
+
+    - alert: DatabaseHighLatency
+      expr: database_query_duration_seconds{quantile="0.95"} > 1
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: High database latency
+        description: 95th percentile query duration exceeds 1 second
+
+    - alert: DatabaseReplicationLag
+      expr: pg_replication_lag_seconds > 300
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: Database replication lag
+        description: Replication lag exceeds 5 minutes
+
+    - alert: DatabaseBackupFailure
+      expr: database_backup_status != 1
+      for: 1h
+      labels:
+        severity: critical
+      annotations:
+        summary: Database backup failure
+        description: Database backup has failed 

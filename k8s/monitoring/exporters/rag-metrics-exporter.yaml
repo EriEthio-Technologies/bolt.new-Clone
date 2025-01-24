@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-metrics-exporter
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rag-metrics-exporter
+  template:
+    metadata:
+      labels:
+        app: rag-metrics-exporter
+    spec:
+      containers:
+      - name: exporter
+        image: gcr.io/${PROJECT_ID}/rag-metrics-exporter:latest
+        ports:
+        - containerPort: 9091
+          name: metrics
+        env:
+        - name: VECTOR_STORE_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: rag-config
+              key: vector_store_endpoint
+        - name: DOCUMENT_PROCESSOR_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: rag-config
+              key: document_processor_endpoint
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 9091
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 9091
+          initialDelaySeconds: 15
+          periodSeconds: 20 

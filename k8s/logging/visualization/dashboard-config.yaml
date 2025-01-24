@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-visualization-config
+  namespace: logging
+data:
+  visualization.conf: |
+    # Performance dashboards
+    <match performance.**>
+      @type prometheus
+      <metric>
+        name ai_model_latency_histogram
+        type histogram
+        desc AI model inference latency
+        key inference_time
+        buckets 10,50,100,200,500,1000,2000,5000
+      </metric>
+      <metric>
+        name code_generation_quality_gauge
+        type gauge
+        desc Code generation quality score
+        key quality_score
+      </metric>
+      <metric>
+        name request_processing_time
+        type histogram
+        desc Request processing time
+        key processing_time
+        buckets 5,10,25,50,100,250,500,1000
+      </metric>
+    </match>
+
+    # Error tracking dashboards
+    <match error.**>
+      @type prometheus
+      <metric>
+        name error_count_total
+        type counter
+        desc Total number of errors
+        <labels>
+          error_type ${error_type}
+          severity ${severity_level}
+          component ${component_name}
+        </labels>
+      </metric>
+      <metric>
+        name recovery_time_histogram
+        type histogram
+        desc Error recovery time
+        key recovery_time
+        buckets 50,100,250,500,1000,2500,5000
+      </metric>
+    </match>
+
+    # Resource utilization dashboards
+    <match resource.**>
+      @type prometheus
+      <metric>
+        name memory_usage_bytes
+        type gauge
+        desc Memory usage in bytes
+        key memory_usage
+      </metric>
+      <metric>
+        name cpu_usage_percent
+        type gauge
+        desc CPU usage percentage
+        key cpu_usage
+      </metric>
+      <metric>
+        name gpu_utilization_percent
+        type gauge
+        desc GPU utilization percentage
+        key gpu_utilization
+      </metric>
+    </match>
+
+    # Business metrics dashboards
+    <match business.**>
+      @type prometheus
+      <metric>
+        name code_generation_success_rate
+        type gauge
+        desc Code generation success rate
+        key success_rate
+      </metric>
+      <metric>
+        name feature_completion_time
+        type histogram
+        desc Feature completion time
+        key completion_time
+        buckets 3600,7200,14400,28800,86400
+      </metric>
+      <metric>
+        name user_satisfaction_score
+        type gauge
+        desc User satisfaction score
+        key satisfaction_score
+      </metric>
+    </match> 

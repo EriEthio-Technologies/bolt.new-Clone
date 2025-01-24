@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gobeze-ai-ingress
+  namespace: gobeze-ai
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: "gobeze-ai-ip"
+    networking.gke.io/managed-certificates: "gobeze-ai-cert"
+    networking.gke.io/v1beta1.FrontendConfig: "gobeze-ai-frontend-config"
+spec:
+  rules:
+  - host: api.gobeze.ai
+    http:
+      paths:
+      - path: /*
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: gobeze-ai-app
+            port:
+              number: 80 

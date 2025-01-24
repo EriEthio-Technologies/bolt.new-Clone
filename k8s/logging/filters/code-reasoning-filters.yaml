@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-code-reasoning-filters
+  namespace: logging
+data:
+  code-reasoning.conf: |
+    # Code analysis metrics
+    <filter kubernetes.**>
+      @type parser
+      key_name log
+      reserve_data true
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key timestamp
+          types analysis_time:float,complexity_score:float,confidence_score:float
+        </pattern>
+      </parse>
+      tag code_reasoning
+    </filter>
+
+    # Static analysis metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        analysis_id ${record.dig("message", "analysis_id")}
+        code_language ${record.dig("message", "language")}
+        file_count ${record.dig("message", "file_count")}
+        loc_analyzed ${record.dig("message", "lines_of_code")}
+        complexity_score ${record.dig("message", "complexity_score")}
+        maintainability_index ${record.dig("message", "maintainability_index")}
+        bug_prediction_score ${record.dig("message", "bug_prediction_score")}
+        security_score ${record.dig("message", "security_score")}
+        test_coverage ${record.dig("message", "test_coverage_percent")}
+      </record>
+    </filter>
+
+    # Semantic analysis metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        semantic_version ${record.dig("message", "semantic_version")}
+        context_window_size ${record.dig("message", "context_window_size")}
+        dependency_count ${record.dig("message", "dependency_count")}
+        api_compatibility ${record.dig("message", "api_compatibility_score")}
+        code_similarity ${record.dig("message", "code_similarity_score")}
+        pattern_matches ${record.dig("message", "pattern_matches_count")}
+        refactoring_suggestions ${record.dig("message", "refactoring_count")}
+      </record>
+    </filter>
+
+    # Performance analysis metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        execution_path_count ${record.dig("message", "execution_paths")}
+        memory_complexity ${record.dig("message", "memory_complexity")}
+        time_complexity ${record.dig("message", "time_complexity")}
+        resource_usage_prediction ${record.dig("message", "resource_prediction")}
+        optimization_potential ${record.dig("message", "optimization_score")}
+        scalability_score ${record.dig("message", "scalability_score")}
+      </record>
+    </filter> 

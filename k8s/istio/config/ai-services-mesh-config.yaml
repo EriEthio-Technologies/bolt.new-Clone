@@ -1,0 +1,50 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: ai-services-routing
+  namespace: default
+spec:
+  hosts:
+  - "ai-model-service"
+  http:
+  - match:
+    - uri:
+        prefix: "/inference"
+    route:
+    - destination:
+        host: ai-model-service
+        port:
+          number: 80
+      weight: 100
+    timeout: 30s
+    retries:
+      attempts: 2
+      perTryTimeout: 15s
+      retryOn: "connect-failure,refused-stream,unavailable,cancelled"
+    fault:
+      delay:
+        percentage:
+          value: 0
+        fixedDelay: 7s
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: ai-services-destination
+  namespace: default
+spec:
+  host: ai-model-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+    connectionPool:
+      tcp:
+        maxConnections: 200
+        connectTimeout: 3s
+      http:
+        http2MaxRequests: 2000
+        maxRequestsPerConnection: 200
+    outlierDetection:
+      consecutive5xxErrors: 3
+      interval: 20s
+      baseEjectionTime: 60s 

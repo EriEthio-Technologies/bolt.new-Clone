@@ -1,0 +1,45 @@
+apiVersion: securitycenter.cnrm.cloud.google.com/v1beta1
+kind: SecurityScanConfig
+metadata:
+  name: remix-app-security-scan
+  namespace: default
+spec:
+  schedule:
+    schedule: "0 */12 * * *"  # Every 12 hours
+  scanConfig:
+    # Container scanning
+    containerScan:
+      enabled: true
+      imagePatterns:
+      - "gcr.io/${PROJECT_ID}/remix-app:*"
+      - "gcr.io/${PROJECT_ID}/data-sync:*"
+    
+    # Vulnerability scanning
+    vulnerabilityScan:
+      enabled: true
+      severityLevels:
+      - CRITICAL
+      - HIGH
+      - MEDIUM
+    
+    # Configuration scanning
+    configScan:
+      enabled: true
+      includeAuditLogs: true
+      
+    # Network scanning
+    networkScan:
+      enabled: true
+      portScanEnabled: true
+---
+apiVersion: containeranalysis.cnrm.cloud.google.com/v1beta1
+kind: BinaryAuthorization
+metadata:
+  name: remix-app-binary-auth
+  namespace: default
+spec:
+  admissionWhitelistPatterns:
+  - namePattern: gcr.io/${PROJECT_ID}/*
+  defaultAdmissionRule:
+    evaluationMode: ALWAYS_DENY
+    enforcementMode: ENFORCED_BLOCK_AND_AUDIT_LOG 

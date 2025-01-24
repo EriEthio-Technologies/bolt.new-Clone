@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-ai-alert-rules
+  namespace: monitoring
+data:
+  ai-alerts.rules: |
+    groups:
+    - name: ai.model.alerts
+      rules:
+      - alert: ModelLatencyHigh
+        expr: rate(model_inference_duration_seconds_sum[5m]) / rate(model_inference_duration_seconds_count[5m]) > 2
+        for: 5m
+        labels:
+          severity: critical
+          category: ai
+        annotations:
+          summary: "Model inference latency is high"
+          description: "Model inference is taking longer than 2 seconds on average"
+
+      - alert: ModelAccuracyLow
+        expr: model_accuracy_score < 90
+        for: 15m
+        labels:
+          severity: warning
+          category: ai
+        annotations:
+          summary: "Model accuracy is below threshold"
+          description: "Model accuracy has dropped below 90%"
+
+      - alert: HighTokenUsage
+        expr: rate(token_usage_total[1h]) > 1000000
+        for: 10m
+        labels:
+          severity: warning
+          category: cost
+        annotations:
+          summary: "High token usage detected"
+          description: "Token usage rate is exceeding 1M tokens per hour"
+
+      - alert: CodeGenerationFailureRate
+        expr: (sum(rate(code_generation_total{status="error"}[5m])) / sum(rate(code_generation_total[5m]))) * 100 > 10
+        for: 5m
+        labels:
+          severity: critical
+          category: ai
+        annotations:
+          summary: "High code generation failure rate"
+          description: "Code generation failure rate is above 10%" 

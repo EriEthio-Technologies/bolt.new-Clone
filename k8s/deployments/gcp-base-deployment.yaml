@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: remix-app
+  namespace: default
+  labels:
+    app: remix-app
+    version: v1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: remix-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: remix-app
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+    spec:
+      serviceAccountName: remix-app-sa
+      containers:
+      - name: remix-app
+        image: gcr.io/${PROJECT_ID}/remix-app:${VERSION}
+        ports:
+        - containerPort: 3000
+          name: http
+        - containerPort: 9090
+          name: metrics
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: environment-config-base
+              key: ENV_TYPE
+        - name: AT_PROTOCOL_VERSION
+          valueFrom:
+            configMapKeyRef:
+              name: environment-config-base
+              key: AT_PROTOCOL_VERSION
+        resources:
+          requests:
+            cpu: 500m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+        - name: secrets-volume
+          mountPath: /app/secrets
+      volumes:
+      - name: config-volume
+        configMap:
+          name: remix-app-config
+      - name: secrets-volume
+        secret:
+          secretName: remix-app-secrets 

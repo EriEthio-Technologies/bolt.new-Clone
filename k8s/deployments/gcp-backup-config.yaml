@@ -1,0 +1,36 @@
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: remix-app-backup
+  namespace: velero
+spec:
+  schedule: "0 */6 * * *"  # Every 6 hours
+  template:
+    includedNamespaces:
+    - default
+    includedResources:
+    - deployments
+    - services
+    - configmaps
+    - secrets
+    - persistentvolumeclaims
+    labelSelector:
+      matchLabels:
+        app: remix-app
+    storageLocation: gcp-backup-location
+    volumeSnapshotLocations:
+    - gcp
+    ttl: 720h  # 30 days
+---
+apiVersion: velero.io/v1
+kind: BackupStorageLocation
+metadata:
+  name: gcp-backup-location
+  namespace: velero
+spec:
+  provider: gcp
+  objectStorage:
+    bucket: ${PROJECT_ID}-backups
+  credential:
+    name: gcp-credentials
+    key: cloud-credentials 

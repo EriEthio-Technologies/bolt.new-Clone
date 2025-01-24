@@ -1,0 +1,51 @@
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: service-tracing
+  namespace: istio-system
+spec:
+  tracing:
+  - providers:
+    - name: jaeger
+    randomSamplingPercentage: 100.0
+    customTags:
+      # Document processing tags
+      document_type:
+        header:
+          name: x-document-type
+      processing_stage:
+        header:
+          name: x-processing-stage
+      ocr_confidence:
+        header:
+          name: x-ocr-confidence
+      
+      # Version control tags
+      git_operation:
+        header:
+          name: x-git-operation
+      branch_name:
+        header:
+          name: x-branch-name
+      commit_hash:
+        header:
+          name: x-commit-hash
+      
+      # AT Protocol tags
+      did_type:
+        header:
+          name: x-did-type
+      repo_operation:
+        header:
+          name: x-repo-operation
+      sync_status:
+        header:
+          name: x-sync-status
+  
+  accessLogging:
+  - providers:
+    - name: envoy
+    filter:
+      expression: "response.code >= 400 || response.duration > 30000"
+    match:
+      mode: CLIENT_AND_SERVER 

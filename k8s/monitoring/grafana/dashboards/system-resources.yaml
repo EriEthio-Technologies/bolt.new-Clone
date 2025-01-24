@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-system-resources
+  namespace: monitoring
+data:
+  system-resources.json: |
+    {
+      "annotations": {
+        "list": []
+      },
+      "editable": true,
+      "panels": [
+        {
+          "title": "Memory Usage",
+          "type": "graph",
+          "datasource": "prometheus",
+          "targets": [
+            {
+              "expr": "sum(container_memory_usage_bytes{container!=\"\"}) by (container)",
+              "legendFormat": "{{container}}"
+            }
+          ]
+        },
+        {
+          "title": "Network Traffic",
+          "type": "graph",
+          "datasource": "prometheus",
+          "targets": [
+            {
+              "expr": "sum(rate(container_network_receive_bytes_total[5m])) by (container)",
+              "legendFormat": "{{container}} Received"
+            },
+            {
+              "expr": "sum(rate(container_network_transmit_bytes_total[5m])) by (container)",
+              "legendFormat": "{{container}} Transmitted"
+            }
+          ]
+        },
+        {
+          "title": "Disk Usage",
+          "type": "graph",
+          "datasource": "prometheus",
+          "targets": [
+            {
+              "expr": "sum(container_fs_usage_bytes{container!=\"\"}) by (container)",
+              "legendFormat": "{{container}}"
+            }
+          ]
+        }
+      ]
+    } 

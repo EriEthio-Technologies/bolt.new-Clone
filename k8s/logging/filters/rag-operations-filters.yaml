@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-rag-filters
+  namespace: logging
+data:
+  rag-operations.conf: |
+    # Vector store operations
+    <filter kubernetes.**>
+      @type parser
+      key_name log
+      reserve_data true
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key timestamp
+          types embedding_time:float,retrieval_time:float,vector_dimension:integer
+        </pattern>
+      </parse>
+      tag vector_store
+    </filter>
+
+    # Embedding metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        embedding_id ${record.dig("message", "embedding_id")}
+        embedding_model ${record.dig("message", "model_name")}
+        embedding_time ${record.dig("message", "embedding_time_ms")}
+        vector_dimension ${record.dig("message", "vector_dim")}
+        batch_size ${record.dig("message", "batch_size")}
+        tokens_processed ${record.dig("message", "token_count")}
+        embedding_quality ${record.dig("message", "quality_score")}
+        cache_hit_ratio ${record.dig("message", "cache_hit_ratio")}
+      </record>
+    </filter>
+
+    # Context retrieval metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        query_id ${record.dig("message", "query_id")}
+        retrieval_time ${record.dig("message", "retrieval_time_ms")}
+        results_count ${record.dig("message", "results_count")}
+        relevance_scores ${record.dig("message", "relevance_scores")}
+        context_length ${record.dig("message", "context_length")}
+        search_strategy ${record.dig("message", "search_strategy")}
+        index_size ${record.dig("message", "index_size_bytes")}
+        query_complexity ${record.dig("message", "query_complexity_score")}
+      </record>
+    </filter>
+
+    # Context integration metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        integration_id ${record.dig("message", "integration_id")}
+        context_tokens ${record.dig("message", "context_token_count")}
+        prompt_tokens ${record.dig("message", "prompt_token_count")}
+        truncation_occurred ${record.dig("message", "truncation_required")}
+        context_quality_score ${record.dig("message", "context_quality")}
+        integration_time ${record.dig("message", "integration_time_ms")}
+        memory_usage ${record.dig("message", "memory_usage_mb")}
+      </record>
+    </filter> 

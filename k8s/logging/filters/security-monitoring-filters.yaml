@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-security-filters
+  namespace: logging
+data:
+  security.conf: |
+    # Security events parsing
+    <filter kubernetes.**>
+      @type parser
+      key_name log
+      reserve_data true
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key timestamp
+          types severity_score:float,detection_time:float
+        </pattern>
+      </parse>
+      tag security_monitoring
+    </filter>
+
+    # Authentication metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        auth_event_id ${record.dig("message", "event_id")}
+        auth_type ${record.dig("message", "auth_type")}
+        user_id ${record.dig("message", "user_id")}
+        ip_address ${record.dig("message", "ip_address")}
+        geo_location ${record.dig("message", "geo_location")}
+        device_info ${record.dig("message", "device_info")}
+        success_status ${record.dig("message", "success")}
+        failure_reason ${record.dig("message", "failure_reason")}
+        mfa_status ${record.dig("message", "mfa_status")}
+      </record>
+    </filter>
+
+    # Threat detection metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        threat_id ${record.dig("message", "threat_id")}
+        threat_type ${record.dig("message", "threat_type")}
+        severity_level ${record.dig("message", "severity_level")}
+        detection_source ${record.dig("message", "detection_source")}
+        affected_resource ${record.dig("message", "affected_resource")}
+        threat_signature ${record.dig("message", "threat_signature")}
+        confidence_score ${record.dig("message", "confidence_score")}
+        mitigation_status ${record.dig("message", "mitigation_status")}
+        incident_id ${record.dig("message", "incident_id")}
+      </record>
+    </filter>
+
+    # Compliance monitoring
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        compliance_check_id ${record.dig("message", "check_id")}
+        policy_id ${record.dig("message", "policy_id")}
+        check_type ${record.dig("message", "check_type")}
+        resource_type ${record.dig("message", "resource_type")}
+        compliance_status ${record.dig("message", "compliance_status")}
+        violation_details ${record.dig("message", "violation_details")}
+        remediation_steps ${record.dig("message", "remediation_steps")}
+        last_checked ${record.dig("message", "last_checked_timestamp")}
+        check_frequency ${record.dig("message", "check_frequency")}
+      </record>
+    </filter>
+
+    # Access control metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        access_event_id ${record.dig("message", "access_event_id")}
+        resource_id ${record.dig("message", "resource_id")}
+        permission_level ${record.dig("message", "permission_level")}
+        granted_permissions ${record.dig("message", "granted_permissions")}
+        requested_permissions ${record.dig("message", "requested_permissions")}
+        decision_time ${record.dig("message", "decision_time_ms")}
+        decision_factor ${record.dig("message", "decision_factor")}
+        policy_version ${record.dig("message", "policy_version")}
+        access_pattern ${record.dig("message", "access_pattern")}
+      </record>
+    </filter> 

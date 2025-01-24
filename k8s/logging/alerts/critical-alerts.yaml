@@ -1,0 +1,104 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: critical-alert-rules
+  namespace: monitoring
+spec:
+  groups:
+  - name: at.protocol.alerts
+    rules:
+    - alert: ATProtocolHighLatency
+      expr: rate(at_protocol_did_resolution_time_bucket{le="1000"}[5m]) < 0.95
+      for: 5m
+      labels:
+        severity: critical
+        component: at-protocol
+      annotations:
+        summary: "AT Protocol DID resolution latency is high"
+        description: "95th percentile latency exceeds 1000ms"
+
+    - alert: ATProtocolSyncFailure
+      expr: at_protocol_sync_success_rate < 0.98
+      for: 15m
+      labels:
+        severity: critical
+        component: at-protocol
+      annotations:
+        summary: "AT Protocol sync success rate is low"
+        description: "Repository sync success rate below 98%"
+
+    - alert: ATProtocolPeerCount
+      expr: at_protocol_peer_count < 5
+      for: 5m
+      labels:
+        severity: warning
+        component: at-protocol
+      annotations:
+        summary: "Low peer count detected"
+        description: "Number of connected peers is below threshold"
+
+  - name: ai.model.alerts
+    rules:
+    - alert: ModelInferenceLatencyHigh
+      expr: histogram_quantile(0.95, rate(ai_model_latency_histogram_bucket[5m])) > 2000
+      for: 5m
+      labels:
+        severity: critical
+        component: ai-model
+      annotations:
+        summary: "AI model inference latency is high"
+        description: "95th percentile latency exceeds 2 seconds"
+
+    - alert: ModelQualityLow
+      expr: code_generation_quality_gauge < 0.8
+      for: 15m
+      labels:
+        severity: warning
+        component: ai-model
+      annotations:
+        summary: "Code generation quality is below threshold"
+        description: "Quality score is below 0.8"
+
+  - name: resource.alerts
+    rules:
+    - alert: HighMemoryUsage
+      expr: memory_usage_bytes > 0.9 * memory_limit_bytes
+      for: 5m
+      labels:
+        severity: warning
+        component: resources
+      annotations:
+        summary: "High memory usage detected"
+        description: "Memory usage exceeds 90% of limit"
+
+    - alert: HighGPUUtilization
+      expr: gpu_utilization_percent > 95
+      for: 5m
+      labels:
+        severity: warning
+        component: resources
+      annotations:
+        summary: "High GPU utilization detected"
+        description: "GPU utilization exceeds 95%"
+
+  - name: error.alerts
+    rules:
+    - alert: HighErrorRate
+      expr: rate(error_count_total[5m]) > 0.1
+      for: 5m
+      labels:
+        severity: critical
+        component: system
+      annotations:
+        summary: "High error rate detected"
+        description: "Error rate exceeds 10% of requests"
+
+    - alert: SlowErrorRecovery
+      expr: histogram_quantile(0.95, rate(recovery_time_histogram_bucket[5m])) > 1000
+      for: 5m
+      labels:
+        severity: warning
+        component: system
+      annotations:
+        summary: "Slow error recovery detected"
+        description: "95th percentile recovery time exceeds 1 second" 

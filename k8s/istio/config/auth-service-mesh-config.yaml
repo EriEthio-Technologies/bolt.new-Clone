@@ -1,0 +1,61 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: auth-service-routing
+  namespace: default
+spec:
+  hosts:
+  - "auth-service"
+  http:
+  - match:
+    - uri:
+        prefix: "/auth"
+    route:
+    - destination:
+        host: auth-service
+        port:
+          number: 80
+      weight: 100
+    timeout: 15s
+    retries:
+      attempts: 3
+      perTryTimeout: 5s
+      retryOn: "connect-failure,refused-stream,unavailable,cancelled,5xx"
+    corsPolicy:
+      allowOrigins:
+      - exact: "*"
+      allowMethods:
+      - POST
+      - OPTIONS
+      allowHeaders:
+      - content-type
+      - authorization
+      maxAge: "24h"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: auth-service-destination
+  namespace: default
+spec:
+  host: auth-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_REQUEST
+    connectionPool:
+      tcp:
+        maxConnections: 300
+        connectTimeout: 2s
+      http:
+        http2MaxRequests: 3000
+        maxRequestsPerConnection: 300
+    outlierDetection:
+      consecutive5xxErrors: 3
+      interval: 15s
+      baseEjectionTime: 45s
+    circuitBreaker:
+      thresholds:
+        maxConnections: 250
+        maxPendingRequests: 150
+        maxRequests: 2500
+        maxRetries: 3 

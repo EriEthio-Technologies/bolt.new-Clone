@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-rag-alert-rules
+  namespace: monitoring
+data:
+  rag-alerts.rules: |
+    groups:
+    - name: rag.alerts
+      rules:
+      - alert: RAGRetrievalLatencyHigh
+        expr: rate(rag_retrieval_duration_seconds_sum[5m]) / rate(rag_retrieval_duration_seconds_count[5m]) > 1
+        for: 5m
+        labels:
+          severity: critical
+          category: rag
+        annotations:
+          summary: "RAG retrieval latency is high"
+          description: "Context retrieval is taking longer than 1 second on average"
+
+      - alert: RAGContextQualityLow
+        expr: avg_over_time(rag_context_relevance_score[15m]) < 0.7
+        for: 15m
+        labels:
+          severity: warning
+          category: rag
+        annotations:
+          summary: "RAG context quality is low"
+          description: "Context relevance score has dropped below 0.7"
+
+      - alert: VectorStoreErrors
+        expr: rate(vector_store_operations_total{status="error"}[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          category: rag
+        annotations:
+          summary: "Vector store operation errors detected"
+          description: "Vector store operations are failing"
+
+      - alert: DocumentProcessingFailures
+        expr: rate(document_processing_errors_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          category: rag
+        annotations:
+          summary: "Document processing failures detected"
+          description: "Documents are failing to process correctly" 

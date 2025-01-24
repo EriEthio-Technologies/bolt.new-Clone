@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-config
+  namespace: logging
+data:
+  fluent.conf: |
+    # Input sources
+    <source>
+      @type tail
+      path /var/log/containers/*.log
+      pos_file /var/log/fluentd-containers.log.pos
+      tag kubernetes.*
+      read_from_head true
+      <parse>
+        @type json
+        time_format %Y-%m-%dT%H:%M:%S.%NZ
+      </parse>
+    </source>
+
+    # Kubernetes metadata filter
+    <filter kubernetes.**>
+      @type kubernetes_metadata
+      watch false
+    </filter>
+
+    # AI Operations specific parsing
+    <filter kubernetes.**>
+      @type parser
+      key_name log
+      reserve_data true
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key timestamp
+          time_format %Y-%m-%dT%H:%M:%S.%NZ
+        </pattern>
+        <pattern>
+          format regexp
+          expression /^(?<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z) (?<level>\w+) (?<message>.*)$/
+          time_key timestamp
+          time_format %Y-%m-%dT%H:%M:%S.%NZ
+        </pattern>
+      </parse>
+    </filter>
+
+    # AI model inference logs
+    <filter kubernetes.**>
+      @type grep
+      <regexp>
+        key message
+        pattern /model_inference|token_usage|rag_operation|vector_store/
+      </regexp>
+    </filter>
+
+    # Add GCP metadata
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        severity_label ${record["level"] || "INFO"}
+        component ${record["kubernetes"]["labels"]["component"] || "unknown"}
+        container_name ${record["kubernetes"]["container_name"]}
+        namespace_name ${record["kubernetes"]["namespace_name"]}
+        pod_name ${record["kubernetes"]["pod_name"]}
+        project_id "#{ENV['PROJECT_ID']}"
+        location "#{ENV['LOCATION']}"
+        cluster_name "#{ENV['CLUSTER_NAME']}"
+      </record>
+    </filter>
+
+    # Output to Cloud Logging
+    <match kubernetes.**>
+      @type google_cloud
+      use_metadata_service true
+      project_id "#{ENV['PROJECT_ID']}"
+      vm_id "#{ENV['VM_ID']}"
+      zone "#{ENV['ZONE']}"
+      
+      # Buffer settings
+      <buffer>
+        @type file
+        path /var/log/fluentd-buffers/kubernetes.buffer
+        flush_mode interval
+        retry_type exponential_backoff
+        flush_thread_count 2
+        flush_interval 5s
+        retry_forever false
+        retry_max_interval 30
+        chunk_limit_size 2M
+        queue_limit_length 8
+        overflow_action block
+      </buffer>
+    </match> 

@@ -1,0 +1,46 @@
+apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+kind: ResourceSchedulePolicy
+metadata:
+  name: remix-app-scheduling
+  namespace: default
+spec:
+  # Development environment scheduling
+  developmentSchedule:
+    enabled: true
+    schedule:
+      - name: "weekday"
+        start: "0 8 * * 1-5"   # 8 AM weekdays
+        stop: "0 18 * * 1-5"   # 6 PM weekdays
+      - name: "weekend"
+        start: "0 10 * * 6-7"  # 10 AM weekends
+        stop: "0 16 * * 6-7"   # 4 PM weekends
+
+  # Staging environment scheduling
+  stagingSchedule:
+    enabled: true
+    schedule:
+      - name: "weekday"
+        start: "0 7 * * 1-5"   # 7 AM weekdays
+        stop: "0 20 * * 1-5"   # 8 PM weekdays
+      - name: "weekend"
+        start: "0 9 * * 6-7"   # 9 AM weekends
+        stop: "0 17 * * 6-7"   # 5 PM weekends
+
+  # Production environment scheduling
+  productionSchedule:
+    enabled: false  # Always on
+    autoScaling:
+      enabled: true
+      schedule:
+        - name: "peak-hours"
+          time: "9-17 * * 1-5"
+          minReplicas: 3
+          maxReplicas: 10
+        - name: "off-hours"
+          time: "0-8,18-23 * * 1-5"
+          minReplicas: 2
+          maxReplicas: 5
+        - name: "weekend"
+          time: "* * * * 6-7"
+          minReplicas: 2
+          maxReplicas: 7 

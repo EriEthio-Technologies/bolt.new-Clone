@@ -1,0 +1,38 @@
+apiVersion: billing.cnrm.cloud.google.com/v1beta1
+kind: BillingBudgetAlert
+metadata:
+  name: remix-app-budget-alerts
+  namespace: default
+spec:
+  budgetRef:
+    name: remix-app-budget
+  alerts:
+    # Service-specific alerts
+    serviceAlerts:
+      - service: "compute.googleapis.com"
+        threshold: 0.7  # 70% of allocated budget
+        notificationChannels:
+          - "${COMPUTE_ALERT_CHANNEL}"
+      - service: "container.googleapis.com"
+        threshold: 0.8  # 80% of allocated budget
+        notificationChannels:
+          - "${CONTAINER_ALERT_CHANNEL}"
+    
+    # Environment-specific alerts
+    environmentAlerts:
+      - environment: "production"
+        threshold: 0.8  # 80% of total budget
+        notificationChannels:
+          - "${PROD_ALERT_CHANNEL}"
+      - environment: "staging"
+        threshold: 0.9  # 90% of allocated budget
+        notificationChannels:
+          - "${STAGING_ALERT_CHANNEL}"
+
+    # Trend-based alerts
+    trendAlerts:
+      - type: "sudden_increase"
+        threshold: 1.5  # 50% increase
+        period: "1d"
+        notificationChannels:
+          - "${TREND_ALERT_CHANNEL}" 

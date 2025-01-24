@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-api-gateway-filters
+  namespace: logging
+data:
+  api-gateway.conf: |
+    # Request processing metrics
+    <filter kubernetes.**>
+      @type parser
+      key_name log
+      reserve_data true
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key timestamp
+          types request_time:float,response_size:integer,rate_limit:float
+        </pattern>
+      </parse>
+      tag api_gateway
+    </filter>
+
+    # Request routing metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        request_id ${record.dig("message", "request_id")}
+        route_id ${record.dig("message", "route_id")}
+        service_name ${record.dig("message", "service_name")}
+        api_version ${record.dig("message", "api_version")}
+        http_method ${record.dig("message", "http_method")}
+        path_pattern ${record.dig("message", "path_pattern")}
+        matched_route ${record.dig("message", "matched_route")}
+        routing_time ${record.dig("message", "routing_time_ms")}
+        backend_service ${record.dig("message", "backend_service")}
+      </record>
+    </filter>
+
+    # Rate limiting metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        rate_limit_key ${record.dig("message", "rate_limit_key")}
+        current_rate ${record.dig("message", "current_rate")}
+        limit_value ${record.dig("message", "limit_value")}
+        window_size ${record.dig("message", "window_size_seconds")}
+        remaining_quota ${record.dig("message", "remaining_quota")}
+        throttled ${record.dig("message", "throttled")}
+        retry_after ${record.dig("message", "retry_after_seconds")}
+      </record>
+    </filter>
+
+    # Authentication and authorization
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        auth_method ${record.dig("message", "auth_method")}
+        token_type ${record.dig("message", "token_type")}
+        scopes_requested ${record.dig("message", "scopes_requested")}
+        scopes_granted ${record.dig("message", "scopes_granted")}
+        auth_latency ${record.dig("message", "auth_latency_ms")}
+        auth_provider ${record.dig("message", "auth_provider")}
+        auth_cache_hit ${record.dig("message", "auth_cache_hit")}
+      </record>
+    </filter>
+
+    # Response metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        status_code ${record.dig("message", "status_code")}
+        response_size ${record.dig("message", "response_size_bytes")}
+        response_time ${record.dig("message", "response_time_ms")}
+        cache_status ${record.dig("message", "cache_status")}
+        compression_ratio ${record.dig("message", "compression_ratio")}
+        backend_latency ${record.dig("message", "backend_latency_ms")}
+        total_latency ${record.dig("message", "total_latency_ms")}
+      </record>
+    </filter> 

@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-dependency-tracking-filters
+  namespace: logging
+data:
+  dependency-tracking.conf: |
+    # Dependency metrics
+    <filter kubernetes.**>
+      @type parser
+      key_name log
+      reserve_data true
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key timestamp
+          types response_time:float,failure_rate:float
+        </pattern>
+      </parse>
+      tag dependency_tracking
+    </filter>
+
+    # Service dependencies
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        service_name ${record.dig("message", "service_name")}
+        dependency_type ${record.dig("message", "dependency_type")}
+        version ${record.dig("message", "version")}
+        endpoint ${record.dig("message", "endpoint")}
+        response_time ${record.dig("message", "response_time_ms")}
+        status ${record.dig("message", "status")}
+        failure_rate ${record.dig("message", "failure_rate")}
+        saturation_level ${record.dig("message", "saturation_level")}
+      </record>
+    </filter>
+
+    # Circuit breaker metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        circuit_name ${record.dig("message", "circuit_name")}
+        state ${record.dig("message", "state")}
+        failure_count ${record.dig("message", "failure_count")}
+        success_count ${record.dig("message", "success_count")}
+        half_open_calls ${record.dig("message", "half_open_calls")}
+        last_state_change ${record.dig("message", "last_state_change")}
+        threshold_percent ${record.dig("message", "threshold_percent")}
+      </record>
+    </filter>
+
+    # Dependency health
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        health_check_id ${record.dig("message", "health_check_id")}
+        dependency_health ${record.dig("message", "health_status")}
+        last_success ${record.dig("message", "last_success_timestamp")}
+        error_budget ${record.dig("message", "error_budget_remaining")}
+        degradation_level ${record.dig("message", "degradation_level")}
+        impact_severity ${record.dig("message", "impact_severity")}
+      </record>
+    </filter> 

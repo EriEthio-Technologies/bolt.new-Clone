@@ -1,0 +1,45 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: database-backup-routing
+  namespace: default
+spec:
+  hosts:
+  - "database-backup-service"
+  http:
+  - match:
+    - uri:
+        prefix: "/backup"
+    route:
+    - destination:
+        host: database-backup-service
+        port:
+          number: 80
+      weight: 100
+    timeout: 3600s  # 1 hour for large backups
+    retries:
+      attempts: 3
+      perTryTimeout: 1200s
+      retryOn: "connect-failure,refused-stream,unavailable,cancelled,5xx"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: database-backup-destination
+  namespace: default
+spec:
+  host: database-backup-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_REQUEST
+    connectionPool:
+      tcp:
+        maxConnections: 50  # Limited for backup operations
+        connectTimeout: 10s
+      http:
+        http2MaxRequests: 500
+        maxRequestsPerConnection: 50
+    outlierDetection:
+      consecutive5xxErrors: 3
+      interval: 60s
+      baseEjectionTime: 300s 

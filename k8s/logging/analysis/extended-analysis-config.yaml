@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: log-extended-analysis-config
+  namespace: logging
+data:
+  extended-analysis.conf: |
+    # AI Model performance metrics
+    <filter model_serving.**>
+      @type prometheus
+      <metric>
+        name model_inference_latency_milliseconds
+        type histogram
+        desc Model inference latency in milliseconds
+        key inference_time
+        buckets 5,10,25,50,100,250,500,1000
+      </metric>
+      <metric>
+        name model_memory_usage_megabytes
+        type gauge
+        desc Model memory usage in megabytes
+        key memory_usage
+      </metric>
+      <metric>
+        name model_gpu_utilization_percent
+        type gauge
+        desc GPU utilization percentage
+        key gpu_utilization
+      </metric>
+    </filter>
+
+    # Process Tree visualization metrics
+    <filter process_tree.**>
+      @type prometheus
+      <metric>
+        name visualization_render_time_milliseconds
+        type histogram
+        desc Visualization render time in milliseconds
+        key render_time
+        buckets 16,33,66,100,166,333,666,1000
+      </metric>
+      <metric>
+        name tree_complexity_score
+        type gauge
+        desc Tree complexity score
+        key complexity_score
+      </metric>
+      <metric>
+        name user_interaction_latency_milliseconds
+        type histogram
+        desc User interaction response time
+        key response_time
+        buckets 10,25,50,100,200,500,1000
+      </metric>
+    </filter>
+
+    # Performance optimization metrics
+    <filter performance.**>
+      @type prometheus
+      <metric>
+        name component_response_time_milliseconds
+        type histogram
+        desc Component response time in milliseconds
+        key response_time
+        buckets 1,5,10,25,50,100,250,500
+      </metric>
+      <metric>
+        name optimization_improvement_percentage
+        type gauge
+        desc Optimization improvement percentage
+        key improvement_percentage
+      </metric>
+      <metric>
+        name resource_utilization_percentage
+        type gauge
+        desc Resource utilization percentage
+        key cpu_usage
+      </metric>
+    </filter> 

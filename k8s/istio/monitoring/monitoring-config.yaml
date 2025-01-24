@@ -1,0 +1,41 @@
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: mesh-telemetry
+  namespace: istio-system
+spec:
+  tracing:
+  - randomSamplingPercentage: 100.0
+    customTags:
+      environment:
+        literal:
+          value: production
+      service_version:
+        header:
+          name: x-service-version
+      user_id:
+        header:
+          name: x-user-id
+  metrics:
+  - providers:
+    - name: prometheus
+    overrides:
+    - match:
+        metric: REQUEST_COUNT
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        response_code:
+          operation: UPSERT
+        response_flags:
+          operation: UPSERT
+    - match:
+        metric: REQUEST_DURATION
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        response_code:
+          operation: UPSERT
+  accessLogging:
+  - providers:
+    - name: envoy
+    filter:
+      expression: "response.code >= 400" 

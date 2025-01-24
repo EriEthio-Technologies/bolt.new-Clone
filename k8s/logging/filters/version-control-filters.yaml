@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-version-control-filters
+  namespace: logging
+data:
+  version-control.conf: |
+    # Repository operations
+    <filter kubernetes.**>
+      @type parser
+      key_name log
+      reserve_data true
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key timestamp
+          types operation_time:float,diff_size:integer
+        </pattern>
+      </parse>
+      tag version_control
+    </filter>
+
+    # Change tracking metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        commit_id ${record.dig("message", "commit_id")}
+        branch_name ${record.dig("message", "branch_name")}
+        operation_type ${record.dig("message", "operation_type")}
+        files_changed ${record.dig("message", "files_changed")}
+        lines_added ${record.dig("message", "lines_added")}
+        lines_deleted ${record.dig("message", "lines_deleted")}
+        commit_message ${record.dig("message", "commit_message")}
+        author ${record.dig("message", "author")}
+      </record>
+    </filter>
+
+    # Code review metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        review_id ${record.dig("message", "review_id")}
+        reviewer ${record.dig("message", "reviewer")}
+        review_duration ${record.dig("message", "review_duration_ms")}
+        comments_count ${record.dig("message", "comments_count")}
+        approval_status ${record.dig("message", "approval_status")}
+        quality_score ${record.dig("message", "quality_score")}
+        review_coverage ${record.dig("message", "review_coverage_percent")}
+      </record>
+    </filter>
+
+    # Merge and conflict metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        merge_id ${record.dig("message", "merge_id")}
+        conflict_count ${record.dig("message", "conflict_count")}
+        resolution_time ${record.dig("message", "resolution_time_ms")}
+        automated_resolutions ${record.dig("message", "automated_resolutions")}
+        manual_resolutions ${record.dig("message", "manual_resolutions")}
+        merge_success ${record.dig("message", "merge_success")}
+        revert_required ${record.dig("message", "revert_required")}
+      </record>
+    </filter> 

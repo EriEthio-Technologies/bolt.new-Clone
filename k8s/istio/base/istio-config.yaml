@@ -1,0 +1,54 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: istio-control-plane
+  namespace: istio-system
+spec:
+  profile: default
+  components:
+    base:
+      enabled: true
+    pilot:
+      enabled: true
+      k8s:
+        resources:
+          requests:
+            cpu: 500m
+            memory: 2048Mi
+          limits:
+            cpu: 1000m
+            memory: 4096Mi
+        hpaSpec:
+          maxReplicas: 5
+          minReplicas: 2
+    ingressGateways:
+    - name: istio-ingressgateway
+      enabled: true
+      k8s:
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1024Mi
+          limits:
+            cpu: 1000m
+            memory: 2048Mi
+        service:
+          type: LoadBalancer
+        hpaSpec:
+          maxReplicas: 5
+          minReplicas: 2
+  values:
+    global:
+      proxy:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+      logging:
+        level: "default:info"
+    pilot:
+      autoscaleEnabled: true
+      traceSampling: 100.0 

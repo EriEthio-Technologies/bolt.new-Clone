@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-service-discovery-filters
+  namespace: logging
+data:
+  service-discovery.conf: |
+    # Service registration metrics
+    <filter kubernetes.**>
+      @type parser
+      key_name log
+      reserve_data true
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key timestamp
+          types registration_time:float,health_check_interval:float
+        </pattern>
+      </parse>
+      tag service_discovery
+    </filter>
+
+    # Service instance metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        service_id ${record.dig("message", "service_id")}
+        instance_id ${record.dig("message", "instance_id")}
+        namespace ${record.dig("message", "namespace")}
+        registration_time ${record.dig("message", "registration_time_ms")}
+        last_heartbeat ${record.dig("message", "last_heartbeat_timestamp")}
+        health_status ${record.dig("message", "health_status")}
+        metadata_version ${record.dig("message", "metadata_version")}
+        endpoint_count ${record.dig("message", "endpoint_count")}
+      </record>
+    </filter>
+
+    # Health check metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        check_id ${record.dig("message", "check_id")}
+        check_type ${record.dig("message", "check_type")}
+        check_interval ${record.dig("message", "check_interval_ms")}
+        timeout ${record.dig("message", "timeout_ms")}
+        success_threshold ${record.dig("message", "success_threshold")}
+        failure_threshold ${record.dig("message", "failure_threshold")}
+        last_check_status ${record.dig("message", "last_check_status")}
+        consecutive_successes ${record.dig("message", "consecutive_successes")}
+        consecutive_failures ${record.dig("message", "consecutive_failures")}
+      </record>
+    </filter>
+
+    # Service resolution metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        resolver_id ${record.dig("message", "resolver_id")}
+        query_pattern ${record.dig("message", "query_pattern")}
+        resolution_time ${record.dig("message", "resolution_time_ms")}
+        instances_found ${record.dig("message", "instances_found")}
+        cache_hit ${record.dig("message", "cache_hit")}
+        ttl_remaining ${record.dig("message", "ttl_remaining_seconds")}
+        load_balancing_policy ${record.dig("message", "lb_policy")}
+        failover_attempted ${record.dig("message", "failover_attempted")}
+      </record>
+    </filter>
+
+    # DNS metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        dns_query_name ${record.dig("message", "query_name")}
+        record_type ${record.dig("message", "record_type")}
+        response_code ${record.dig("message", "response_code")}
+        answer_count ${record.dig("message", "answer_count")}
+        query_time ${record.dig("message", "query_time_ms")}
+        dns_server ${record.dig("message", "dns_server")}
+        cached_response ${record.dig("message", "cached_response")}
+        authoritative ${record.dig("message", "authoritative")}
+      </record>
+    </filter> 

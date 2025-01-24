@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: log-aggregator-config
+  namespace: logging
+data:
+  aggregation.conf: |
+    # Input from Fluentd forwarders
+    <source>
+      @type forward
+      port 24224
+      bind 0.0.0.0
+    </source>
+
+    # Aggregate AI model metrics
+    <filter model.**>
+      @type aggregate
+      <buffer>
+        @type memory
+        chunk_limit_size 8m
+        total_limit_size 128m
+        flush_interval 60s
+      </buffer>
+      tag model_metrics
+      <aggregate>
+        time_key timestamp
+        group_by model_version
+        sum inference_time,token_count
+        avg success_rate
+      </aggregate>
+    </filter>
+
+    # Aggregate RAG metrics
+    <filter rag.**>
+      @type aggregate
+      <buffer>
+        @type memory
+        chunk_limit_size 8m
+        total_limit_size 128m
+        flush_interval 60s
+      </buffer>
+      tag rag_metrics
+      <aggregate>
+        time_key timestamp
+        group_by operation_type
+        sum rag_latency
+        avg context_quality
+      </aggregate>
+    </filter>
+
+    # Export metrics to Cloud Monitoring
+    <match {model,rag}_metrics>
+      @type google_cloud_monitoring
+      project_id "#{ENV['PROJECT_ID']}"
+      <buffer>
+        @type file
+        path /var/log/fluent/monitoring
+        flush_interval 30s
+        chunk_limit_size 4m
+      </buffer>
+    </match> 

@@ -1,0 +1,64 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: remix-ssr-routing
+  namespace: default
+spec:
+  hosts:
+  - "remix-ssr-service"
+  http:
+  - match:
+    - uri:
+        prefix: "/"
+    route:
+    - destination:
+        host: remix-ssr-service
+        port:
+          number: 80
+      weight: 100
+    timeout: 30s
+    retries:
+      attempts: 2
+      perTryTimeout: 15s
+      retryOn: "connect-failure,refused-stream,unavailable,cancelled,5xx"
+    headers:
+      request:
+        set:
+          x-powered-by: "Remix"
+          x-remix-version: "${REMIX_VERSION}"
+    corsPolicy:
+      allowOrigins:
+      - exact: "*"
+      allowMethods:
+      - GET
+      - POST
+      - OPTIONS
+      - HEAD
+      allowHeaders:
+      - content-type
+      - x-remix-route
+      - x-remix-build
+      maxAge: "86400"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: remix-ssr-destination
+  namespace: default
+spec:
+  host: remix-ssr-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_REQUEST
+    connectionPool:
+      tcp:
+        maxConnections: 500
+        connectTimeout: 3s
+      http:
+        http2MaxRequests: 5000
+        maxRequestsPerConnection: 500
+        maxRetries: 2
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 60s 

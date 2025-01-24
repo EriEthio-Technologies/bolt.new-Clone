@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-feature-request-filters
+  namespace: logging
+data:
+  feature-request.conf: |
+    # Feature request parsing
+    <filter kubernetes.**>
+      @type parser
+      key_name log
+      reserve_data true
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key timestamp
+          types processing_time:float,complexity_score:float,confidence_score:float
+        </pattern>
+      </parse>
+      tag feature_request
+    </filter>
+
+    # Request analysis metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        request_id ${record.dig("message", "request_id")}
+        feature_type ${record.dig("message", "feature_type")}
+        processing_time ${record.dig("message", "processing_time_ms")}
+        complexity_score ${record.dig("message", "complexity_score")}
+        dependency_count ${record.dig("message", "dependency_count")}
+        estimated_effort ${record.dig("message", "effort_points")}
+        priority_score ${record.dig("message", "priority_score")}
+        impact_assessment ${record.dig("message", "impact_score")}
+      </record>
+    </filter>
+
+    # Implementation planning metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        plan_id ${record.dig("message", "plan_id")}
+        steps_count ${record.dig("message", "steps_count")}
+        estimated_duration ${record.dig("message", "estimated_duration_hours")}
+        required_resources ${record.dig("message", "required_resources")}
+        risk_factors ${record.dig("message", "risk_factors")}
+        confidence_score ${record.dig("message", "confidence_score")}
+        validation_status ${record.dig("message", "validation_status")}
+      </record>
+    </filter>
+
+    # Integration validation metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        validation_id ${record.dig("message", "validation_id")}
+        test_coverage ${record.dig("message", "test_coverage_percent")}
+        integration_points ${record.dig("message", "integration_points")}
+        breaking_changes ${record.dig("message", "breaking_changes")}
+        backward_compatibility ${record.dig("message", "compatibility_score")}
+        performance_impact ${record.dig("message", "performance_impact")}
+        security_impact ${record.dig("message", "security_impact_score")}
+      </record>
+    </filter> 

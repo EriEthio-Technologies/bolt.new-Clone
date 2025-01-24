@@ -1,0 +1,45 @@
+apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+kind: CostOptimizationPolicy
+metadata:
+  name: remix-app-cost-rules
+  namespace: default
+spec:
+  # Idle resource management
+  idleResourceRules:
+    # Disk rules
+    diskRules:
+      - condition: "usage.average < 0.1 && age > 30d"
+        action: "notify"
+        threshold: "168h"  # 1 week
+    # Instance rules
+    instanceRules:
+      - condition: "cpu.usage.average < 0.05 && network.in.average < 100"
+        action: "notify"
+        threshold: "72h"  # 3 days
+    # Load balancer rules
+    loadBalancerRules:
+      - condition: "requests.count < 10 && age > 7d"
+        action: "notify"
+        threshold: "24h"
+
+  # Resource rightsizing
+  rightsizingRules:
+    # CPU optimization
+    cpuRules:
+      - condition: "cpu.usage.95percentile < 0.4"
+        recommendation: "downsize"
+        minAge: "7d"
+    # Memory optimization
+    memoryRules:
+      - condition: "memory.usage.95percentile < 0.5"
+        recommendation: "downsize"
+        minAge: "7d"
+
+  # Cost anomaly detection
+  anomalyDetection:
+    enabled: true
+    lookbackPeriod: "30d"
+    thresholds:
+      dailyIncrease: 1.5  # 50% increase
+      weeklyIncrease: 1.3 # 30% increase
+      monthlyIncrease: 1.2 # 20% increase 

@@ -1,0 +1,45 @@
+apiVersion: networking.gke.io/v1
+kind: MultiClusterIngress
+metadata:
+  name: remix-app-failover
+  namespace: default
+  annotations:
+    networking.gke.io/static-ip: "remix-app-global-ip"
+spec:
+  template:
+    spec:
+      backend:
+        serviceName: remix-app-mcs
+        servicePort: 80
+      rules:
+      - host: app.com
+        http:
+          paths:
+          - path: /*
+            backend:
+              serviceName: remix-app-mcs
+              servicePort: 80
+---
+apiVersion: networking.gke.io/v1
+kind: MultiClusterServicePolicy
+metadata:
+  name: remix-app-failover-policy
+  namespace: default
+spec:
+  policy:
+    failover:
+      regions:
+      - region: us-central1
+        priority: 1
+      - region: us-east1
+        priority: 2
+      - region: us-west1
+        priority: 3
+    healthCheck:
+      type: HTTP
+      port: 3000
+      path: /health
+      interval: 10s
+      timeout: 5s
+      unhealthyThreshold: 3
+      healthyThreshold: 2 

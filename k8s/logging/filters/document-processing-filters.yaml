@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-document-processing-filters
+  namespace: logging
+data:
+  document-processing.conf: |
+    # Document processing logs
+    <filter kubernetes.**>
+      @type parser
+      key_name log
+      reserve_data true
+      <parse>
+        @type multi_format
+        <pattern>
+          format json
+          time_key timestamp
+          types processing_time:float,confidence_score:float
+        </pattern>
+      </parse>
+      tag document_processing
+    </filter>
+
+    # Document metrics
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        document_type ${record.dig("message", "doc_type") || "unknown"}
+        processing_time ${record.dig("message", "processing_time_ms")}
+        confidence_score ${record.dig("message", "ocr_confidence")}
+        page_count ${record.dig("message", "page_count")}
+        extracted_code_blocks ${record.dig("message", "code_block_count")}
+        extraction_quality ${record.dig("message", "extraction_quality")}
+      </record>
+    </filter> 

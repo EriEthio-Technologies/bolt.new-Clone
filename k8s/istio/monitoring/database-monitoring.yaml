@@ -1,0 +1,54 @@
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: database-telemetry
+  namespace: istio-system
+spec:
+  metrics:
+  - providers:
+    - name: prometheus
+    overrides:
+    # Connection metrics
+    - match:
+        metric: DATABASE_CONNECTIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        connection_type:
+          operation: UPSERT
+        pool_size:
+          operation: UPSERT
+        wait_time:
+          operation: UPSERT
+    # Query metrics
+    - match:
+        metric: DATABASE_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        query_type:
+          operation: UPSERT
+        execution_time:
+          operation: UPSERT
+        table_name:
+          operation: UPSERT
+    # Cache metrics
+    - match:
+        metric: CACHE_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        operation_type:
+          operation: UPSERT
+        hit_rate:
+          operation: UPSERT
+        memory_usage:
+          operation: UPSERT
+  tracing:
+  - customTags:
+      db_operation:
+        header:
+          name: x-db-operation
+      query_id:
+        header:
+          name: x-query-id
+      transaction_id:
+        header:
+          name: x-transaction-id 

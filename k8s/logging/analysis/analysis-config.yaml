@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: log-analysis-config
+  namespace: logging
+data:
+  analysis.conf: |
+    # Performance analysis
+    <filter {code_generation,project_management,document_processing}.**>
+      @type prometheus
+      <metric>
+        name performance_latency_milliseconds
+        type histogram
+        desc Performance latency in milliseconds
+        key processing_time
+        buckets 10,50,100,200,500,1000,2000,5000
+      </metric>
+      <metric>
+        name quality_score
+        type gauge
+        desc Quality metrics for various operations
+        key quality_score
+      </metric>
+      <metric>
+        name operation_success_rate
+        type gauge
+        desc Success rate of operations
+        key success_rate
+      </metric>
+    </filter>
+
+    # Error analysis
+    <filter error.**>
+      @type prometheus
+      <metric>
+        name error_count_total
+        type counter
+        desc Total number of errors
+        <labels>
+          error_type ${error_type}
+          component ${component}
+          severity ${severity}
+        </labels>
+      </metric>
+    </filter>
+
+    # Business metrics
+    <filter business.**>
+      @type prometheus
+      <metric>
+        name feature_completion_rate
+        type gauge
+        desc Feature completion rate
+        key completion_rate
+      </metric>
+      <metric>
+        name planning_accuracy_percentage
+        type gauge
+        desc Planning accuracy percentage
+        key accuracy_rate
+      </metric>
+    </filter> 

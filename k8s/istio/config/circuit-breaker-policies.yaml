@@ -1,0 +1,53 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: global-circuit-breaker
+  namespace: default
+spec:
+  host: "*"
+  trafficPolicy:
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+    connectionPool:
+      tcp:
+        maxConnections: 100
+        connectTimeout: 3s
+      http:
+        maxRequestsPerConnection: 100
+        http2MaxRequests: 1000
+    circuitBreaker:
+      thresholds:
+        maxConnections: 100
+        maxPendingRequests: 100
+        maxRequests: 1000
+        maxRetries: 3
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: high-availability-circuit-breaker
+  namespace: default
+spec:
+  host: "auth-service"
+  trafficPolicy:
+    outlierDetection:
+      consecutive5xxErrors: 3
+      interval: 15s
+      baseEjectionTime: 45s
+      maxEjectionPercent: 70
+    connectionPool:
+      tcp:
+        maxConnections: 300
+        connectTimeout: 2s
+      http:
+        maxRequestsPerConnection: 300
+        http2MaxRequests: 3000
+    circuitBreaker:
+      thresholds:
+        maxConnections: 250
+        maxPendingRequests: 150
+        maxRequests: 2500
+        maxRetries: 5 

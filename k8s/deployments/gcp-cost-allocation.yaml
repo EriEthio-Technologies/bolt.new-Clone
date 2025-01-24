@@ -1,0 +1,36 @@
+apiVersion: cloudresourcemanager.cnrm.cloud.google.com/v1beta1
+kind: Project
+metadata:
+  name: remix-app-project
+  namespace: default
+spec:
+  billingAccount: billingAccounts/${BILLING_ACCOUNT_ID}
+  labels:
+    environment: production
+    app: remix-app
+    cost-center: engineering
+    team: platform
+  resourceLabels:
+    purpose: production
+    managed-by: terraform
+    owner: platform-team
+---
+apiVersion: monitoring.googleapis.com/v1
+kind: MetricDescriptor
+metadata:
+  name: remix-app-cost-metrics
+  namespace: default
+spec:
+  description: "Cost metrics for Remix application"
+  displayName: "Remix App Costs"
+  type: custom.googleapis.com/remix/costs
+  metricKind: GAUGE
+  valueType: DOUBLE
+  labels:
+  - key: service
+    description: "Service name"
+  - key: environment
+    description: "Environment (prod/staging/dev)"
+  - key: component
+    description: "Component type"
+  unit: "USD" 

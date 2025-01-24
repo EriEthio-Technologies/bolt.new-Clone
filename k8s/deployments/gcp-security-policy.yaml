@@ -1,0 +1,67 @@
+apiVersion: networking.gke.io/v1beta1
+kind: SecurityPolicy
+metadata:
+  name: remix-app-security
+  namespace: default
+spec:
+  targetResources:
+  - group: networking.k8s.io
+    kind: Ingress
+    name: remix-app-ingress
+  rules:
+  - action: allow
+    priority: 1000
+    match:
+      expr:
+        # Allow only from known IP ranges
+        'origin.ip_ranges': ['35.191.0.0/16', '130.211.0.0/22']
+  - action: deny
+    priority: 2000
+    match:
+      expr:
+        # Block known malicious patterns
+        'request.path.matches("/wp-admin|/phpmyadmin|/xmlrpc.php")'
+  - action: rate_limit
+    priority: 3000
+    rateLimitOptions:
+      rate: 100
+      intervalSeconds: 60
+    match:
+      expr:
+        'true'
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: remix-app-network-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: remix-app
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: default
+    - podSelector:
+        matchLabels:
+          app: remix-app
+    ports:
+    - protocol: TCP
+      port: 3000
+    - protocol: TCP
+      port: 9090
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: default
+    ports:
+    - protocol: TCP
+      port: 5432  # PostgreSQL
+    - protocol: TCP
+      port: 6379  # Redis 

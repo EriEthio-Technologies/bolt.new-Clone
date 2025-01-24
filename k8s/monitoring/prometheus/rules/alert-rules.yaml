@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-alert-rules
+  namespace: monitoring
+data:
+  alert.rules: |
+    groups:
+    - name: gobeze.ai
+      rules:
+      - alert: HighErrorRate
+        expr: sum(rate(http_requests_total{status_code=~"5.*"}[5m])) / sum(rate(http_requests_total[5m])) * 100 > 5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: High HTTP error rate
+          description: Error rate is above 5% for the last 5 minutes
+
+      - alert: HighLatency
+        expr: rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High API latency
+          description: API response time is above 1 second for the last 5 minutes
+
+      - alert: HighMemoryUsage
+        expr: sum(container_memory_usage_bytes{container!=""}) / sum(container_memory_max_usage_bytes{container!=""}) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High memory usage
+          description: Memory usage is above 85% for the last 5 minutes 

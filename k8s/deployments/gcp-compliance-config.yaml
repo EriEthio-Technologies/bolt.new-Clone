@@ -1,0 +1,51 @@
+apiVersion: config.gke.io/v1
+kind: CompliancePolicy
+metadata:
+  name: remix-app-compliance
+  namespace: default
+spec:
+  policyType: "CIS_GKE_BENCHMARK"
+  version: "1.2.0"
+  remediationAction: "enforce"
+  rules:
+  # Access Control
+  - id: "5.1.1"
+    name: "Ensure RBAC is enabled"
+    enabled: true
+  - id: "5.1.2"
+    name: "Minimize access to secrets"
+    enabled: true
+  
+  # Network Security
+  - id: "6.1"
+    name: "Ensure network policies are enabled"
+    enabled: true
+  - id: "6.2"
+    name: "Ensure encryption in transit is enabled"
+    enabled: true
+  
+  # Logging and Monitoring
+  - id: "7.1"
+    name: "Ensure audit logging is enabled"
+    enabled: true
+  - id: "7.2"
+    name: "Ensure monitoring is enabled"
+    enabled: true
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredLabels
+metadata:
+  name: remix-app-required-labels
+spec:
+  match:
+    kinds:
+    - apiGroups: [""]
+      kinds: ["Pod", "Service", "Deployment"]
+  parameters:
+    labels:
+    - key: "app"
+      allowedRegex: "^remix-app.*$"
+    - key: "environment"
+      allowedRegex: "^(production|staging|development)$"
+    - key: "security-tier"
+      allowedRegex: "^(high|medium|low)$" 

@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-rag-metrics
+  namespace: monitoring
+data:
+  rag-metrics.json: |
+    {
+      "annotations": {
+        "list": []
+      },
+      "editable": true,
+      "panels": [
+        {
+          "title": "RAG Retrieval Latency",
+          "type": "graph",
+          "datasource": "prometheus",
+          "targets": [
+            {
+              "expr": "rate(rag_retrieval_duration_seconds_sum[5m]) / rate(rag_retrieval_duration_seconds_count[5m])",
+              "legendFormat": "Retrieval Time"
+            }
+          ]
+        },
+        {
+          "title": "RAG Context Quality Score",
+          "type": "gauge",
+          "datasource": "prometheus",
+          "targets": [
+            {
+              "expr": "rag_context_relevance_score",
+              "legendFormat": "Relevance Score"
+            }
+          ],
+          "options": {
+            "minValue": 0,
+            "maxValue": 1,
+            "thresholds": [
+              { "value": 0.6, "color": "red" },
+              { "value": 0.75, "color": "yellow" },
+              { "value": 0.85, "color": "green" }
+            ]
+          }
+        },
+        {
+          "title": "Vector Store Operations",
+          "type": "graph",
+          "datasource": "prometheus",
+          "targets": [
+            {
+              "expr": "rate(vector_store_operations_total[5m])",
+              "legendFormat": "{{operation_type}}"
+            }
+          ]
+        },
+        {
+          "title": "Document Processing Rate",
+          "type": "graph",
+          "datasource": "prometheus",
+          "targets": [
+            {
+              "expr": "rate(document_processing_total[5m])",
+              "legendFormat": "Documents Processed"
+            }
+          ]
+        }
+      ]
+    } 

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-metrics-exporter
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-metrics-exporter
+  template:
+    metadata:
+      labels:
+        app: ai-metrics-exporter
+    spec:
+      containers:
+      - name: exporter
+        image: gcr.io/${PROJECT_ID}/ai-metrics-exporter:latest
+        ports:
+        - containerPort: 9090
+          name: metrics
+        env:
+        - name: MODEL_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: ai-config
+              key: model_endpoint
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 9090
+          initialDelaySeconds: 10
+          periodSeconds: 30 

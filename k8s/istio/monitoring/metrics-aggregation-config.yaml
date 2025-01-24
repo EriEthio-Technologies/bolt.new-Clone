@@ -1,0 +1,54 @@
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: metrics-aggregation
+  namespace: istio-system
+spec:
+  metrics:
+  - providers:
+    - name: prometheus
+    overrides:
+    # WebSocket metrics
+    - match:
+        metric: WEBSOCKET_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        connection_type:
+          operation: UPSERT
+        connection_duration:
+          operation: UPSERT
+        client_type:
+          operation: UPSERT
+    # Storage metrics
+    - match:
+        metric: STORAGE_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        operation_type:
+          operation: UPSERT
+        file_size:
+          operation: UPSERT
+        storage_type:
+          operation: UPSERT
+    # Search metrics
+    - match:
+        metric: SEARCH_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        query_type:
+          operation: UPSERT
+        result_count:
+          operation: UPSERT
+        search_latency:
+          operation: UPSERT
+  tracing:
+  - customTags:
+      websocket_session_id:
+        header:
+          name: x-websocket-session-id
+      storage_operation_id:
+        header:
+          name: x-storage-operation-id
+      search_query_id:
+        header:
+          name: x-search-query-id 

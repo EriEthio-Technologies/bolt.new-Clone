@@ -1,0 +1,54 @@
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: service-specific-telemetry
+  namespace: istio-system
+spec:
+  metrics:
+  - providers:
+    - name: prometheus
+    overrides:
+    # Authentication metrics
+    - match:
+        metric: AUTH_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        auth_type:
+          operation: UPSERT
+        auth_provider:
+          operation: UPSERT
+        auth_status:
+          operation: UPSERT
+    # Project management metrics
+    - match:
+        metric: PROJECT_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        operation_type:
+          operation: UPSERT
+        project_stage:
+          operation: UPSERT
+        team_size:
+          operation: UPSERT
+    # Analytics metrics
+    - match:
+        metric: ANALYTICS_OPERATIONS
+        mode: CLIENT_AND_SERVER
+      tagOverrides:
+        analysis_type:
+          operation: UPSERT
+        data_source:
+          operation: UPSERT
+        processing_stage:
+          operation: UPSERT
+  tracing:
+  - customTags:
+      auth_session_id:
+        header:
+          name: x-auth-session-id
+      project_id:
+        header:
+          name: x-project-id
+      analytics_job_id:
+        header:
+          name: x-analytics-job-id 

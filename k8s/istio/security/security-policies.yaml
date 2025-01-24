@@ -1,0 +1,29 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: api-security-policy
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: at-protocol-service
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/default/sa/at-protocol-client"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+        paths: ["/xrpc/*"]
+    when:
+    - key: request.auth.claims[iss]
+      values: ["https://auth.atproto.ai"]
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default-peer-policy
+  namespace: default
+spec:
+  mtls:
+    mode: STRICT 

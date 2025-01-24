@@ -1,0 +1,44 @@
+apiVersion: logging.googleapis.com/v1
+kind: LogSink
+metadata:
+  name: remix-app-logs
+  namespace: default
+spec:
+  destination: storage.googleapis.com/${PROJECT_ID}-logs
+  filter: |
+    resource.type="k8s_container"
+    resource.labels.namespace_name="default"
+    resource.labels.container_name="remix-app"
+  includeChildren: true
+---
+apiVersion: logging.googleapis.com/v1
+kind: LogMetric
+metadata:
+  name: remix-app-log-metrics
+  namespace: default
+spec:
+  filter: |
+    resource.type="k8s_container"
+    resource.labels.container_name="remix-app"
+  metricDescriptor:
+    metricKind: DELTA
+    valueType: INT64
+    unit: "1"
+    labels:
+    - key: severity
+      valueType: STRING
+    - key: component
+      valueType: STRING
+---
+apiVersion: logging.googleapis.com/v1
+kind: LogExclusion
+metadata:
+  name: remix-app-log-exclusions
+  namespace: default
+spec:
+  filter: |
+    resource.type="k8s_container"
+    severity<="DEBUG"
+    NOT jsonPayload.message.contains("health check")
+  disabled: false
+  description: "Exclude debug logs and health checks" 

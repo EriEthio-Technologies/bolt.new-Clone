@@ -1,0 +1,56 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: database-routing
+  namespace: default
+spec:
+  hosts:
+  - "database-service"
+  tcp:
+  - match:
+    - port: 5432  # PostgreSQL default port
+    route:
+    - destination:
+        host: database-service
+        port:
+          number: 5432
+      weight: 100
+  - match:
+    - port: 6379  # Redis default port
+    route:
+    - destination:
+        host: redis-service
+        port:
+          number: 6379
+      weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: database-destination
+  namespace: default
+spec:
+  host: database-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_REQUEST
+    connectionPool:
+      tcp:
+        maxConnections: 300
+        connectTimeout: 3s
+        tcpKeepalive:
+          time: 300s
+          interval: 75s
+      http:
+        http2MaxRequests: 3000
+        maxRequestsPerConnection: 300
+    outlierDetection:
+      consecutive5xxErrors: 3
+      interval: 30s
+      baseEjectionTime: 60s
+    circuitBreaker:
+      thresholds:
+        maxConnections: 250
+        maxPendingRequests: 150
+        maxRequests: 2500
+        maxRetries: 3 

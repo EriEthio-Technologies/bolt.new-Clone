@@ -1,0 +1,43 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: long-running-operations
+  namespace: default
+spec:
+  host: "*"
+  trafficPolicy:
+    outlierDetection:
+      consecutive5xxErrors: 10
+      interval: 60s
+      baseEjectionTime: 300s
+      maxEjectionPercent: 50
+    connectionPool:
+      tcp:
+        maxConnections: 200
+        connectTimeout: 10s
+      http:
+        maxRequestsPerConnection: 50
+        http2MaxRequests: 1000
+    circuitBreaker:
+      thresholds:
+        maxConnections: 150
+        maxPendingRequests: 100
+        maxRequests: 1500
+        maxRetries: 5
+  subsets:
+  - name: file-processing
+    labels:
+      operation: file-processing
+    trafficPolicy:
+      timeout: 3600s
+      retries:
+        attempts: 5
+        perTryTimeout: 720s
+  - name: data-sync
+    labels:
+      operation: data-sync
+    trafficPolicy:
+      timeout: 1800s
+      retries:
+        attempts: 3
+        perTryTimeout: 600s 

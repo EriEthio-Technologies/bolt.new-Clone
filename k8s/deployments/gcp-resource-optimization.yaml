@@ -1,0 +1,37 @@
+apiVersion: resourcemanager.cnrm.cloud.google.com/v1beta1
+kind: ResourcePolicy
+metadata:
+  name: remix-app-resource-policy
+  namespace: default
+spec:
+  instanceSchedulePolicy:
+    vmStartSchedule: "0 8 * * 1-5"  # Start at 8 AM on weekdays
+    vmStopSchedule: "0 20 * * 1-5"  # Stop at 8 PM on weekdays
+    timeZone: "UTC"
+  resourceOptimization:
+    # CPU optimization
+    cpuUtilizationTarget: 0.6  # Target 60% CPU utilization
+    scaleInCooldownSec: 300    # 5 minutes cooldown
+    scaleOutCooldownSec: 120   # 2 minutes cooldown
+    
+    # Memory optimization
+    memoryUtilizationTarget: 0.7  # Target 70% memory utilization
+    
+    # Disk optimization
+    diskUtilizationTarget: 0.8    # Target 80% disk utilization
+---
+apiVersion: compute.cnrm.cloud.google.com/v1beta1
+kind: ComputeResourcePolicy
+metadata:
+  name: remix-app-compute-policy
+  namespace: default
+spec:
+  location: ${REGION}
+  snapshotSchedulePolicy:
+    schedule:
+      dailySchedule:
+        daysInCycle: 1
+        startTime: "03:00"  # 3 AM UTC
+    retentionPolicy:
+      maxRetentionDays: 14
+      onSourceDiskDelete: KEEP_AUTO_SNAPSHOTS 
