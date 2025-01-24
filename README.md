@@ -1,27 +1,35 @@
-[![Bolt.new: AI-Powered Full-Stack Web Development in the Browser](./public/social_preview_index.jpg)](https://bolt.new)
 
-# Gobeze AI: AI-Powered Full-Stack Web Development
 
-Gobeze AI is an AI-powered web development tool that allows you to prompt, run, edit, and deploy full-stack applications directly from your browser—no local setup required.
+<div align="center">
+  <img src="./public/6.png" alt="Gobeze.AI Logo" width="200">
+</div>
 
-## What Makes Gobeze AI Different
+# Gobeze.AI: Advanced AI-Powered Coding and Development Agent
+
+Gobeze.AI is an advanced AI-powered web development tool that allows you to prompt, run, edit, and deploy full-stack applications directly from your browser—no local setup required. This sophisticated AI coding agent is capable of handling large and complex projects with efficiency, high levels of accuracy, context, and understanding.
+
+<div align="center">
+  <img src="./public/5.png" alt="Favicon" width="32">
+</div>
+
+## What Makes Gobeze.AI Different
 
 Our platform stands out with these key features:
 
-- **Full-Stack in the Browser**: Gobeze AI provides a complete in-browser development environment powered by modern web technologies. This allows you to:
+- **Full-Stack in the Browser**: Gobeze.AI provides a complete in-browser development environment powered by modern web technologies. This allows you to:
   - Install and manage npm packages
   - Run Node.js servers
   - Edit code in real-time
   - Deploy applications
   - Debug with full console access
 
-- **AI with Environment Control**: Unlike traditional dev environments where the AI can only assist in code generation, Gobeze AI gives AI models **complete control** over the entire environment including the filesystem, node server, package manager, terminal, and browser console. This empowers AI agents to handle the entire development workflow.
+- **AI with Environment Control**: Unlike traditional dev environments where the AI can only assist in code generation, Gobeze.AI gives AI models **complete control** over the entire environment including the filesystem, node server, package manager, terminal, and browser console. This empowers AI agents to handle the entire development workflow.
 
-Whether you're an experienced developer, a PM or designer, Gobeze AI allows you to build production-grade full-stack applications with ease.
+- **Advanced Capabilities**: Gobeze.AI's AI coding agent is designed to manage large and complex projects with high levels of accuracy, context, and understanding. Whether you're an experienced developer, a PM, or designer, Gobeze.AI allows you to build production-grade full-stack applications with ease.
 
 ## Getting Started
 
-Here are some tips to get the most out of Gobeze AI:
+Here are some tips to get the most out of Gobeze.AI:
 
 1. **Be Specific**: When describing what you want to build, be as specific as possible. Include details about:
    - Desired functionality
@@ -40,13 +48,13 @@ The application is deployed to Google Cloud Platform. Make sure you have the nec
 ## FAQs
 
 **Is this a beta?**
-Yes, Gobeze AI is in beta, and we are actively improving it based on feedback.
+Yes, Gobeze.AI is in beta, and we are actively improving it based on feedback.
 
 **How can I report issues?**
 Check out the [Issues section](https://github.com/yourusername/gobeze-ai/issues) to report an issue or request a new feature. Please use the search feature to check if someone else has already submitted the same issue/request.
 
 **What frameworks are supported?**
-Gobeze AI supports most popular JavaScript frameworks and libraries out of the box.
+Gobeze.AI supports most popular JavaScript frameworks and libraries out of the box.
 
 # AT Protocol Code Assistant
 
@@ -164,4 +172,5 @@ The service implements:
 
 ## License
 
-[Add your license information here]
+MIT
+

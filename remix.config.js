@@ -1,49 +1,24 @@
 /** @type {import('@remix-run/dev').AppConfig} */
-export default {
-  appDirectory: 'app',
-  assetsBuildDirectory: 'public/build',
+module.exports = {
+  ignoredRouteFiles: ["**/.*"],
+  appDirectory: "app",
+  assetsBuildDirectory: "public/build",
+  publicPath: "/build/",
+  serverBuildPath: "build/index.js",
+  serverModuleFormat: "cjs",
+  serverPlatform: "node",
+  serverDependenciesToBundle: ["marked", "@atproto/api"],
   future: {
-    v3_fetcherPersist: true,
-    v3_relativeSplatPath: true,
-    v3_throwAbortReason: true,
+    v2_errorBoundary: true,
+    v2_headers: true,
+    v2_meta: true,
+    v2_normalizeFormMethod: true,
+    v2_routeConvention: true,
   },
-  publicPath: '/build/',
-  serverBuildPath: 'build/server/index.js',
-  serverModuleFormat: 'esm',
-  plugins: [require('@remix-run/eslint-config/patch/modern-browsers')],
-  serverDependenciesToBundle: [
-    '@remix-run/dev',
-    '@remix-run/eslint-config',
-    '@remix-run/node',
-    '@remix-run/react',
-    '@remix-run/serve',
-    '@remix-run/web-fetch',
-    '@remix-run/cloudflare',
-    '@remix-run/cloudflare-pages',
-  ],
-  ignoredRouteFiles: ['**/*'],
-  server: './server.ts',
-  watchPaths: ['app/entry.server.tsx'],
-  devServerBroadcastDelay: 1000,
-  tailwind: true,
-  css: {
-    preprocessor: 'postcss',
-    postcss: true,
-  },
-  serverMainFields: ['main', 'module'],
-  serverBuildTarget: 'server',
   serverMinify: true,
-  serverMinifyOptions: {
-    compress: true,
-    ecma: 2020,
-    mangle: true,
-    module: true,
-    toplevel: true,
-    keep_classnames: true,
-    keep_fnames: true,
-  },
-  serverPlatform: 'neutral',
-  serverRuntime: 'node',
-  serverModuleFormat: 'esm',
-  serverConditions: ['worker', 'browser'],
+  routes(defineRoutes) {
+    return defineRoutes((route) => {
+      route("/", "routes/_index.tsx");
+    });
+  }
 };
