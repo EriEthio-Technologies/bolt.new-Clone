@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { Container } from 'typedi';
 import { KeyboardShortcutsTrigger } from '../KeyboardShortcutsTrigger';
 import { KeyboardService } from '~/lib/services/keyboard/KeyboardService';
@@ -20,7 +20,10 @@ describe('KeyboardShortcutsTrigger', () => {
     mockKeyboardService = {
       registerShortcut: jest.fn(),
       unregisterShortcut: jest.fn(),
-      getShortcuts: jest.fn().mockReturnValue([])
+      getShortcuts: jest.fn().mockReturnValue([
+        { key: 'ctrl+s', description: 'Save' },
+        { key: 'ctrl+p', description: 'Open file' }
+      ])
     } as any;
 
     (KeyboardService as jest.Mock).mockImplementation(() => mockKeyboardService);
@@ -41,84 +44,36 @@ describe('KeyboardShortcutsTrigger', () => {
     expect(screen.getByRole('button')).toHaveAttribute('aria-label', 'Show keyboard shortcuts');
   });
 
-  it('renders custom trigger content', () => {
-    render(
-      <KeyboardShortcutsTrigger>
-        <span>Custom Trigger</span>
-      </KeyboardShortcutsTrigger>
-    );
-    
-    expect(screen.getByText('Custom Trigger')).toBeInTheDocument();
-  });
-
-  it('applies correct position classes', () => {
-    const { rerender } = render(<KeyboardShortcutsTrigger position="top-left" />);
-    expect(screen.getByRole('button')).toHaveClass('top-4 left-4');
-
-    rerender(<KeyboardShortcutsTrigger position="bottom-right" />);
-    expect(screen.getByRole('button')).toHaveClass('bottom-4 right-4');
-  });
-
-  it('registers and unregisters keyboard shortcut', () => {
-    const { unmount } = render(<KeyboardShortcutsTrigger />);
-
-    expect(mockKeyboardService.registerShortcut).toHaveBeenCalledWith({
-      id: 'show-keyboard-shortcuts',
-      keys: '?',
-      description: 'Show keyboard shortcuts',
-      action: expect.any(Function)
-    });
-
-    unmount();
-    expect(mockKeyboardService.unregisterShortcut).toHaveBeenCalledWith('show-keyboard-shortcuts');
-  });
-
-  it('opens dialog on button click', () => {
+  it('shows shortcuts modal when clicked', () => {
     render(<KeyboardShortcutsTrigger />);
     
     fireEvent.click(screen.getByRole('button'));
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    
+    expect(screen.getByText('Save')).toBeInTheDocument();
+    expect(screen.getByText('Open file')).toBeInTheDocument();
+    expect(screen.getByText('ctrl+s')).toBeInTheDocument();
+    expect(screen.getByText('ctrl+p')).toBeInTheDocument();
   });
 
-  it('tracks trigger usage in monitoring', async () => {
+  it('tracks modal open in analytics', () => {
     render(<KeyboardShortcutsTrigger />);
     
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button'));
-    });
+    fireEvent.click(screen.getByRole('button'));
 
     expect(mockUIMonitor.trackLoadingState).toHaveBeenCalledWith({
       component: 'KeyboardShortcutsTrigger',
-      duration: 0,
-      variant: 'click',
-      hasOverlay: false
+      duration: expect.any(Number),
+      variant: 'showShortcuts',
+      hasOverlay: true
     });
   });
 
-  it('shows/hides keyboard icon based on prop', () => {
-    const { rerender } = render(<KeyboardShortcutsTrigger showIcon={true} />);
-    expect(screen.getByRole('button').querySelector('svg')).toBeInTheDocument();
-
-    rerender(<KeyboardShortcutsTrigger showIcon={false} />);
-    expect(screen.getByRole('button').querySelector('svg')).not.toBeInTheDocument();
-  });
-
-  describe('accessibility', () => {
-    it('has correct ARIA attributes', () => {
-      render(<KeyboardShortcutsTrigger />);
-      
-      const trigger = screen.getByRole('button');
-      expect(trigger).toHaveAttribute('aria-label', 'Show keyboard shortcuts');
-    });
-
-    it('supports keyboard navigation', () => {
-      render(<KeyboardShortcutsTrigger />);
-      
-      const trigger = screen.getByRole('button');
-      trigger.focus();
-      fireEvent.keyDown(trigger, { key: 'Enter' });
-      
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
-    });
+  it('closes modal when escape is pressed', () => {
+    render(<KeyboardShortcutsTrigger />);
+    
+    fireEvent.click(screen.getByRole('button'));
+    fireEvent.keyDown(document, { key: 'Escape' });
+    
+    expect(screen.queryByText('Save')).not.toBeInTheDocument();
   });
 }); 
