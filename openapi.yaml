@@ -1,0 +1,25 @@
+swagger: '2.0'
+info:
+  title: Gobeze AI API
+  description: API for Gobeze AI powered by AT Protocol
+  version: 1.0.0
+host: api.gobeze.ai
+schemes:
+  - https
+security:
+  - api_key: []
+  - oauth2: []
+securityDefinitions:
+  api_key:
+    type: apiKey
+    name: x-api-key
+    in: header
+  oauth2:
+    type: oauth2
+    flow: accessCode
+    authorizationUrl: https://auth.gobeze.ai/oauth2/authorize
+    tokenUrl: https://auth.gobeze.ai/oauth2/token
+    scopes:
+      read: Read access
+      write: Write access
+      admin: Admin access 

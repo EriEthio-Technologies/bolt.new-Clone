@@ -1,0 +1,12 @@
+apiVersion: container.gcp.api/v1
+kind: Cluster
+metadata:
+  name: gobeze-ai-prod
+spec:
+  network: vpc-prod
+  subnetwork: subnet-prod
+  masterAuthorizedNetworksConfig:
+    enabled: true
+  privateClusterConfig:
+    enablePrivateNodes: true
+    masterIpv4CidrBlock: "172.16.0.0/28" 

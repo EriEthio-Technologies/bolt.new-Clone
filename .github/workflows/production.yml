@@ -1,0 +1,46 @@
+name: Production Deployment
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Google Auth
+        id: auth
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+          
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install Dependencies
+        run: npm ci
+        
+      - name: Run Tests
+        run: npm test
+        
+      - name: Build
+        run: npm run build
+        
+      - name: Deploy to App Engine
+        uses: google-github-actions/deploy-appengine@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          deliverables: app.yaml
+          version: v1
+          promote: true 

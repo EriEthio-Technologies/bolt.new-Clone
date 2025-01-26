@@ -1,0 +1,10 @@
+apiVersion: cloud.google.com/v1
+kind: Database
+metadata:
+  name: gobeze-ai-db
+spec:
+  type: REGIONAL
+  tier: db-custom-4-15360
+  backupConfiguration:
+    enabled: true
+    startTime: "23:00" 

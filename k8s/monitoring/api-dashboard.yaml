@@ -1,0 +1,27 @@
+apiVersion: monitoring.googleapis.com/v1
+kind: Dashboard
+metadata:
+  name: api-metrics
+spec:
+  displayName: "API Metrics Dashboard"
+  gridLayout:
+    columns: 2
+    widgets:
+      - title: "API Requests per Minute"
+        xyChart:
+          dataSets:
+            - timeSeriesQuery:
+                timeSeriesFilter:
+                  filter: 'metric.type="custom.googleapis.com/api/request"'
+                aggregation:
+                  alignmentPeriod: 60s
+                  perSeriesAligner: ALIGN_RATE
+      - title: "Error Rate"
+        xyChart:
+          dataSets:
+            - timeSeriesQuery:
+                timeSeriesFilter:
+                  filter: 'metric.type="custom.googleapis.com/api/request" AND metric.labels.status >= 400'
+                aggregation:
+                  alignmentPeriod: 60s
+                  perSeriesAligner: ALIGN_RATE 

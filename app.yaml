@@ -1,10 +1,23 @@
 runtime: nodejs18
 env: standard
+
 instance_class: F1
 
+automatic_scaling:
+  target_cpu_utilization: 0.65
+  min_instances: 1
+  max_instances: 10
+  target_throughput_utilization: 0.6
+
 env_variables:
-  REMIX_CONFIG_PATH: "remix.config.cjs"
+  REMIX_CONFIG_PATH: "remix.config.mjs"
   NODE_ENV: "production"
+  NODE_OPTIONS: "--experimental-vm-modules"
+  ALLOWED_ORIGINS: $ALLOWED_ORIGINS
+  AT_PROTOCOL_URL: $AT_PROTOCOL_URL
+
+vpc_access_connector:
+  name: projects/$PROJECT_ID/locations/$REGION/connectors/vpc-connector
 
 handlers:
   - url: /build/(.*)
@@ -13,10 +26,22 @@ handlers:
     secure: always
     mime_type: application/javascript
 
-  - url: /.*
-    script: auto
+  - url: /public/(.*)
+    static_files: public/\1
+    upload: public/.*
+    secure: always
+
+  - url: /favicon.ico
+    static_files: public/favicon.ico
+    upload: public/favicon.ico
     secure: always
 
   - url: /google4a0ee4a602388e0a\.html
     static_files: public/google4a0ee4a602388e0a.html
-    upload: public/google4a0ee4a602388e0a\.html 
+    upload: public/google4a0ee4a602388e0a\.html
+    secure: always
+
+  - url: /.*
+    secure: always
+    redirect_http_response_code: 301
+    script: auto 

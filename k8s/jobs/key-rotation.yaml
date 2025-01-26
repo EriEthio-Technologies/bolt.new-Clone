@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: api-key-rotation
+spec:
+  schedule: "0 0 * * *"  # Run daily at midnight
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: key-rotation
+            image: gcr.io/${PROJECT_ID}/key-rotation:latest
+            env:
+            - name: GCP_PROJECT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: GCP_PROJECT_ID
+            - name: AT_PROTOCOL_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: at-protocol-credentials
+                  key: api-key
+          restartPolicy: OnFailure 

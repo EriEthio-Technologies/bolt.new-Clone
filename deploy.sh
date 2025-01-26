@@ -3,25 +3,48 @@
 # Exit on error
 set -e
 
-# Clean up deployment directory
-rm -rf deploy/gcp/*
-mkdir -p deploy/gcp/build deploy/gcp/public deploy/gcp/app
+# Load environment variables
+if [ "$NODE_ENV" != "production" ]; then
+  source .env.local
+else
+  source .env.production
+fi
 
-# Install dependencies and build locally
-REMIX_CONFIG_PATH=remix.config.cjs npm ci
-REMIX_CONFIG_PATH=remix.config.cjs npm run build
+# Validate environment variables
+echo "🔍 Validating environment variables..."
+npm run validate-env
 
-# Copy files to deployment directory maintaining structure
-cp -r build/* deploy/gcp/build/
-cp -r public/* deploy/gcp/public/
-cp -r app/* deploy/gcp/app/
-cp package.json package-lock.json remix.config.cjs app.yaml cloudbuild.yaml deploy/gcp/
+# Install dependencies
+echo "📦 Installing dependencies..."
+npm ci
 
-# Install production dependencies in deployment directory
-cd deploy/gcp
-npm ci --omit=dev
+# Run tests
+echo "🧪 Running tests..."
+npm test
 
-# Deploy to App Engine
-gcloud builds submit --config=cloudbuild.yaml .
+# Build application
+echo "🏗️ Building application..."
+npm run build
 
-echo "Deployment complete!" 
+# Deploy to GCP
+echo "🚀 Deploying to GCP..."
+gcloud app deploy app.yaml --quiet
+
+# Verify deployment
+echo "✅ Verifying deployment..."
+gcloud app browse
+
+echo "🔐 Deploying API Gateway..."
+gcloud endpoints services deploy openapi.yaml
+
+echo "🔑 Configuring API keys..."
+gcloud services enable apikeys.googleapis.com
+gcloud alpha services api-keys create --display-name="Gobeze AI API Keys"
+
+echo "📊 Setting up monitoring..."
+gcloud monitoring dashboards create --dashboard-json-file=k8s/monitoring/api-dashboard.yaml
+
+echo "⏰ Setting up key rotation..."
+kubectl apply -f k8s/jobs/key-rotation.yaml
+
+echo "🎉 Deployment complete!" 
