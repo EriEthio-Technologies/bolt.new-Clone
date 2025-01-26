@@ -1,0 +1,97 @@
+{
+  "displayName": "Dependency Analysis Dashboard",
+  "gridLayout": {
+    "columns": "2",
+    "widgets": [
+      {
+        "title": "Total Files and Dependencies",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/dependencies/total_files\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              }
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/dependencies/total_dependencies\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "title": "Circular Dependencies",
+        "xyChart": {
+          "dataSets": [{
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "metric.type=\"custom.googleapis.com/dependencies/circular_count\"",
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "perSeriesAligner": "ALIGN_MEAN"
+                }
+              }
+            }
+          }]
+        }
+      },
+      {
+        "title": "Dependency Graph Metrics",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/dependencies/graph_density\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              }
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/dependencies/max_depth\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "displayName": "High Circular Dependencies Alert",
+      "documentation": "Number of circular dependencies exceeds threshold",
+      "conditions": [{
+        "displayName": "Circular dependencies threshold exceeded",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/dependencies/circular_count\"",
+          "comparison": "COMPARISON_GT",
+          "threshold": 5,
+          "duration": "300s"
+        }
+      }]
+    }
+  ]
+} 

@@ -1,0 +1,71 @@
+{
+  "displayName": "Context Persistence Dashboard",
+  "gridLayout": {
+    "columns": "2",
+    "widgets": [
+      {
+        "title": "Context Versions",
+        "xyChart": {
+          "dataSets": [{
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "metric.type=\"custom.googleapis.com/persistence/versions_count\"",
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "perSeriesAligner": "ALIGN_MEAN"
+                }
+              }
+            }
+          }]
+        }
+      },
+      {
+        "title": "Storage Size",
+        "xyChart": {
+          "dataSets": [{
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "metric.type=\"custom.googleapis.com/persistence/storage_size\"",
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "perSeriesAligner": "ALIGN_MEAN"
+                }
+              }
+            }
+          }]
+        }
+      },
+      {
+        "title": "Backup Success Rate",
+        "xyChart": {
+          "dataSets": [{
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "metric.type=\"custom.googleapis.com/persistence/backup_success_rate\"",
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "perSeriesAligner": "ALIGN_MEAN"
+                }
+              }
+            }
+          }]
+        }
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "displayName": "Low Backup Success Rate Alert",
+      "documentation": "Context backup success rate below threshold",
+      "conditions": [{
+        "displayName": "Backup success rate threshold breached",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/persistence/backup_success_rate\"",
+          "comparison": "COMPARISON_LT",
+          "threshold": 0.95,
+          "duration": "300s"
+        }
+      }]
+    }
+  ]
+} 

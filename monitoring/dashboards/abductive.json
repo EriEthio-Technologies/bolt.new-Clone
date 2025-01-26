@@ -1,0 +1,170 @@
+{
+  "displayName": "Abductive Reasoning Dashboard",
+  "gridLayout": {
+    "columns": "2",
+    "widgets": [
+      {
+        "title": "Analysis Overview",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/abductive/observation_count\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Observations"
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/abductive/hypothesis_count\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Hypotheses"
+            }
+          ],
+          "yAxis": {
+            "label": "Count",
+            "scale": "LINEAR"
+          }
+        }
+      },
+      {
+        "title": "Analysis Quality",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/abductive/confidence\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Confidence"
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/abductive/hypothesis_average_confidence\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Hypothesis Confidence"
+            }
+          ],
+          "yAxis": {
+            "label": "Score",
+            "scale": "LINEAR"
+          }
+        }
+      },
+      {
+        "title": "Hypothesis Metrics",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/abductive/hypothesis_evidence_ratio\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Evidence Ratio"
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/abductive/hypothesis_assumption_count\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Assumptions"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Performance",
+        "xyChart": {
+          "dataSets": [{
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "metric.type=\"custom.googleapis.com/abductive/processing_time\"",
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "perSeriesAligner": "ALIGN_MEAN"
+                }
+              }
+            },
+            "plotType": "LINE",
+            "legendTemplate": "Processing Time (ms)"
+          }]
+        }
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "displayName": "Low Confidence Alert",
+      "documentation": "Abductive analysis confidence below threshold",
+      "conditions": [{
+        "displayName": "Confidence threshold breached",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/abductive/confidence\"",
+          "comparison": "COMPARISON_LT",
+          "threshold": 0.7,
+          "duration": "300s",
+          "trigger": {
+            "count": 3
+          }
+        }
+      }],
+      "alertStrategy": {
+        "notificationRateLimit": {
+          "period": "300s"
+        },
+        "autoClose": "1800s"
+      }
+    },
+    {
+      "displayName": "High Processing Time Alert",
+      "documentation": "Abductive analysis processing time exceeds threshold",
+      "conditions": [{
+        "displayName": "Processing time threshold breached",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/abductive/processing_time\"",
+          "comparison": "COMPARISON_GT",
+          "threshold": 1000,
+          "duration": "300s"
+        }
+      }]
+    }
+  ]
+} 

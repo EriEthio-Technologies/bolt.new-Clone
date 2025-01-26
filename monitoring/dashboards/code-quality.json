@@ -1,0 +1,100 @@
+{
+  "displayName": "Code Quality Dashboard",
+  "gridLayout": {
+    "columns": "2",
+    "widgets": [
+      {
+        "title": "Cyclomatic Complexity Trend",
+        "xyChart": {
+          "dataSets": [{
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "metric.type=\"custom.googleapis.com/code_quality/complexity/cyclomatic\"",
+                "aggregation": {
+                  "alignmentPeriod": "86400s",
+                  "perSeriesAligner": "ALIGN_MEAN"
+                }
+              }
+            }
+          }]
+        }
+      },
+      {
+        "title": "Code Coverage",
+        "xyChart": {
+          "dataSets": [{
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "metric.type=\"custom.googleapis.com/code_quality/coverage/lines\"",
+                "aggregation": {
+                  "alignmentPeriod": "86400s",
+                  "perSeriesAligner": "ALIGN_MEAN"
+                }
+              }
+            }
+          }]
+        }
+      },
+      {
+        "title": "Code Duplication",
+        "xyChart": {
+          "dataSets": [{
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "metric.type=\"custom.googleapis.com/code_quality/duplication/percentage\"",
+                "aggregation": {
+                  "alignmentPeriod": "86400s",
+                  "perSeriesAligner": "ALIGN_MEAN"
+                }
+              }
+            }
+          }]
+        }
+      },
+      {
+        "title": "Technical Debt Rating",
+        "xyChart": {
+          "dataSets": [{
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "metric.type=\"custom.googleapis.com/code_quality/technical_debt/rating\"",
+                "aggregation": {
+                  "alignmentPeriod": "86400s",
+                  "perSeriesAligner": "ALIGN_MEAN"
+                }
+              }
+            }
+          }]
+        }
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "displayName": "High Cyclomatic Complexity Alert",
+      "documentation": "Cyclomatic complexity exceeds threshold",
+      "conditions": [{
+        "displayName": "Complexity threshold exceeded",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/code_quality/complexity/cyclomatic\"",
+          "comparison": "COMPARISON_GT",
+          "threshold": 20,
+          "duration": "300s"
+        }
+      }]
+    },
+    {
+      "displayName": "Low Code Coverage Alert",
+      "documentation": "Code coverage below threshold",
+      "conditions": [{
+        "displayName": "Coverage below threshold",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/code_quality/coverage/lines\"",
+          "comparison": "COMPARISON_LT",
+          "threshold": 80,
+          "duration": "300s"
+        }
+      }]
+    }
+  ]
+} 

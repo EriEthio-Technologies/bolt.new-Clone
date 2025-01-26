@@ -1,0 +1,133 @@
+{
+  "displayName": "Causal Reasoning Dashboard",
+  "gridLayout": {
+    "columns": "2",
+    "widgets": [
+      {
+        "title": "Chain Metrics",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/causal/chain_size\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Chain Size"
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/causal/chain_confidence\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Chain Confidence"
+            }
+          ],
+          "yAxis": {
+            "label": "Value",
+            "scale": "LINEAR"
+          }
+        }
+      },
+      {
+        "title": "Link Type Distribution",
+        "pieChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=starts_with(\"custom.googleapis.com/causal/chain_\")",
+                  "aggregation": {
+                    "alignmentPeriod": "300s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "title": "Analysis Insights",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/causal/critical_paths\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Critical Paths"
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/causal/uncertainty_count\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Uncertainties"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "displayName": "Low Chain Confidence Alert",
+      "documentation": "Causal chain confidence below threshold",
+      "conditions": [{
+        "displayName": "Confidence threshold breached",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/causal/chain_confidence\"",
+          "comparison": "COMPARISON_LT",
+          "threshold": 0.7,
+          "duration": "300s",
+          "trigger": {
+            "count": 3
+          }
+        }
+      }],
+      "alertStrategy": {
+        "notificationRateLimit": {
+          "period": "300s"
+        },
+        "autoClose": "1800s"
+      }
+    },
+    {
+      "displayName": "High Uncertainty Alert",
+      "documentation": "High number of uncertainties in causal analysis",
+      "conditions": [{
+        "displayName": "Uncertainty threshold breached",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/causal/uncertainty_count\"",
+          "comparison": "COMPARISON_GT",
+          "threshold": 5,
+          "duration": "300s"
+        }
+      }]
+    }
+  ]
+} 

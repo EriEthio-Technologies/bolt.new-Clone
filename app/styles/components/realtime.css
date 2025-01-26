@@ -1,0 +1,181 @@
+.collaborative-editor {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.editor-container {
+  position: relative;
+  width: 100%;
+  height: 400px;
+}
+
+.editor {
+  width: 100%;
+  height: 100%;
+  padding: 1rem;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 20px;
+  resize: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.presence-indicators {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.cursor-indicator {
+  position: absolute;
+  width: 2px;
+  height: 20px;
+  transition: all 0.1s ease;
+}
+
+.cursor-label {
+  position: absolute;
+  top: -20px;
+  left: 0;
+  padding: 2px 4px;
+  font-size: 12px;
+  color: white;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.selection-indicator {
+  position: absolute;
+  height: 20px;
+  transition: all 0.1s ease;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.connection-status.connected {
+  background-color: #e6ffe6;
+  color: #006600;
+}
+
+.connection-status.disconnected {
+  background-color: #ffe6e6;
+  color: #660000;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.connected .status-dot {
+  background-color: #00cc00;
+}
+
+.disconnected .status-dot {
+  background-color: #cc0000;
+}
+
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.conflict-resolver {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 600px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 1.5rem;
+  z-index: 1000;
+}
+
+.conflict-header {
+  margin-bottom: 1rem;
+}
+
+.conflict-header h3 {
+  margin: 0 0 0.5rem;
+  color: #cc0000;
+}
+
+.conflict-header p {
+  margin: 0;
+  color: #666;
+}
+
+.conflict-content {
+  margin-bottom: 1rem;
+}
+
+.conflict-editor {
+  width: 100%;
+  height: 200px;
+  padding: 0.5rem;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: none;
+}
+
+.conflict-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.conflict-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.conflict-button.discard {
+  background-color: #f8f9fa;
+  color: #666;
+}
+
+.conflict-button.discard:hover {
+  background-color: #e9ecef;
+}
+
+.conflict-button.resolve {
+  background-color: #0066cc;
+  color: white;
+}
+
+.conflict-button.resolve:hover {
+  background-color: #0052a3;
+}
+
+.conflict-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+} 

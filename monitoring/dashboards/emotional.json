@@ -1,0 +1,135 @@
+{
+  "displayName": "Emotional Analysis Dashboard",
+  "gridLayout": {
+    "columns": "2",
+    "widgets": [
+      {
+        "title": "Emotional Dimensions",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/emotional/valence\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Valence"
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/emotional/arousal\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Arousal"
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/emotional/dominance\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Dominance"
+            }
+          ],
+          "yAxis": {
+            "label": "Value",
+            "scale": "LINEAR"
+          }
+        }
+      },
+      {
+        "title": "Analysis Confidence",
+        "xyChart": {
+          "dataSets": [{
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "metric.type=\"custom.googleapis.com/emotional/confidence\"",
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "perSeriesAligner": "ALIGN_MEAN"
+                }
+              }
+            },
+            "plotType": "LINE",
+            "legendTemplate": "Confidence Score"
+          }],
+          "yAxis": {
+            "label": "Score",
+            "scale": "LINEAR"
+          }
+        }
+      },
+      {
+        "title": "Processing Performance",
+        "xyChart": {
+          "dataSets": [{
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "metric.type=\"custom.googleapis.com/emotional/processing_time\"",
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "perSeriesAligner": "ALIGN_MEAN"
+                }
+              }
+            },
+            "plotType": "LINE",
+            "legendTemplate": "Processing Time (ms)"
+          }]
+        }
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "displayName": "Low Confidence Alert",
+      "documentation": "Emotional analysis confidence below threshold",
+      "conditions": [{
+        "displayName": "Confidence threshold breached",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/emotional/confidence\"",
+          "comparison": "COMPARISON_LT",
+          "threshold": 0.6,
+          "duration": "300s",
+          "trigger": {
+            "count": 3
+          }
+        }
+      }],
+      "alertStrategy": {
+        "notificationRateLimit": {
+          "period": "300s"
+        },
+        "autoClose": "1800s"
+      }
+    },
+    {
+      "displayName": "High Processing Time Alert",
+      "documentation": "Emotional analysis processing time exceeds threshold",
+      "conditions": [{
+        "displayName": "Processing time threshold breached",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/emotional/processing_time\"",
+          "comparison": "COMPARISON_GT",
+          "threshold": 500,
+          "duration": "300s"
+        }
+      }]
+    }
+  ]
+} 

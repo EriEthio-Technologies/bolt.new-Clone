@@ -1,0 +1,100 @@
+{
+  "displayName": "Performance Monitoring Dashboard",
+  "gridLayout": {
+    "columns": "2",
+    "widgets": [
+      {
+        "title": "CPU Usage",
+        "xyChart": {
+          "dataSets": [{
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "metric.type=\"custom.googleapis.com/performance/cpu/usage\"",
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "perSeriesAligner": "ALIGN_MEAN"
+                }
+              }
+            }
+          }]
+        }
+      },
+      {
+        "title": "Memory Usage",
+        "xyChart": {
+          "dataSets": [{
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "metric.type=\"custom.googleapis.com/performance/memory/heap_used\"",
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "perSeriesAligner": "ALIGN_MEAN"
+                }
+              }
+            }
+          }]
+        }
+      },
+      {
+        "title": "Request Rate",
+        "xyChart": {
+          "dataSets": [{
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "metric.type=\"custom.googleapis.com/performance/load_test/requests_per_second\"",
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "perSeriesAligner": "ALIGN_MEAN"
+                }
+              }
+            }
+          }]
+        }
+      },
+      {
+        "title": "Application Performance",
+        "xyChart": {
+          "dataSets": [{
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "metric.type=\"custom.googleapis.com/performance/runtime/startup_time\"",
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "perSeriesAligner": "ALIGN_MEAN"
+                }
+              }
+            }
+          }]
+        }
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "displayName": "High CPU Usage Alert",
+      "documentation": "CPU usage exceeds threshold",
+      "conditions": [{
+        "displayName": "CPU threshold exceeded",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/performance/cpu/usage\"",
+          "comparison": "COMPARISON_GT",
+          "threshold": 80,
+          "duration": "300s"
+        }
+      }]
+    },
+    {
+      "displayName": "High Memory Usage Alert",
+      "documentation": "Memory usage exceeds threshold",
+      "conditions": [{
+        "displayName": "Memory threshold exceeded",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/performance/memory/heap_used\"",
+          "comparison": "COMPARISON_GT",
+          "threshold": 0.8,
+          "duration": "300s"
+        }
+      }]
+    }
+  ]
+} 

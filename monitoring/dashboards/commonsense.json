@@ -1,0 +1,153 @@
+{
+  "displayName": "Common Sense Reasoning Dashboard",
+  "gridLayout": {
+    "columns": "2",
+    "widgets": [
+      {
+        "title": "Inference Quality",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/commonsense/inference_confidence\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Inference Confidence"
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/commonsense/reasoning_depth\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Reasoning Depth"
+            }
+          ],
+          "yAxis": {
+            "label": "Score",
+            "scale": "LINEAR"
+          }
+        }
+      },
+      {
+        "title": "Concept Distribution",
+        "pieChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=starts_with(\"custom.googleapis.com/commonsense/concept_\")",
+                  "aggregation": {
+                    "alignmentPeriod": "300s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "title": "Performance Metrics",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/commonsense/processing_time\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Processing Time (ms)"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Supporting Evidence",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/commonsense/supporting_facts_count\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Supporting Facts"
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/commonsense/alternatives_count\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Alternatives"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "displayName": "Low Inference Confidence Alert",
+      "documentation": "Common sense inference confidence below threshold",
+      "conditions": [{
+        "displayName": "Confidence threshold breached",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/commonsense/inference_confidence\"",
+          "comparison": "COMPARISON_LT",
+          "threshold": 0.7,
+          "duration": "300s",
+          "trigger": {
+            "count": 3
+          }
+        }
+      }],
+      "alertStrategy": {
+        "notificationRateLimit": {
+          "period": "300s"
+        },
+        "autoClose": "1800s"
+      }
+    },
+    {
+      "displayName": "High Processing Time Alert",
+      "documentation": "Common sense reasoning processing time exceeds threshold",
+      "conditions": [{
+        "displayName": "Processing time threshold breached",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/commonsense/processing_time\"",
+          "comparison": "COMPARISON_GT",
+          "threshold": 1000,
+          "duration": "300s"
+        }
+      }]
+    }
+  ]
+} 

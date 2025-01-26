@@ -1,0 +1,148 @@
+{
+  "displayName": "Context Versioning Dashboard",
+  "gridLayout": {
+    "columns": "2",
+    "widgets": [
+      {
+        "title": "Version Activity",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/versioning/versions_count\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Version Count"
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/versioning/changes_count\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Changes Count"
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "Count",
+            "scale": "LINEAR"
+          }
+        }
+      },
+      {
+        "title": "Branch Management",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/versioning/branch_count\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Active Branches"
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "Count",
+            "scale": "LINEAR"
+          }
+        }
+      },
+      {
+        "title": "Merge Activity",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/versioning/merge_conflicts\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "STACKED_BAR",
+              "legendTemplate": "Merge Conflicts"
+            }
+          ],
+          "timeshiftDuration": "0s",
+          "yAxis": {
+            "label": "Count",
+            "scale": "LINEAR"
+          }
+        }
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "displayName": "High Merge Conflict Rate Alert",
+      "documentation": "Number of merge conflicts exceeds threshold",
+      "conditions": [{
+        "displayName": "Merge conflicts threshold exceeded",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/versioning/merge_conflicts\"",
+          "comparison": "COMPARISON_GT",
+          "threshold": 5,
+          "duration": "300s",
+          "trigger": {
+            "count": 1
+          }
+        }
+      }],
+      "alertStrategy": {
+        "notificationRateLimit": {
+          "period": "300s"
+        },
+        "autoClose": "1800s"
+      },
+      "notifications": [
+        {
+          "channels": ["email"]
+        }
+      ]
+    },
+    {
+      "displayName": "High Branch Count Alert",
+      "documentation": "Number of active branches exceeds recommended limit",
+      "conditions": [{
+        "displayName": "Branch count threshold exceeded",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/versioning/branch_count\"",
+          "comparison": "COMPARISON_GT",
+          "threshold": 10,
+          "duration": "3600s",
+          "trigger": {
+            "count": 1
+          }
+        }
+      }],
+      "alertStrategy": {
+        "notificationRateLimit": {
+          "period": "3600s"
+        },
+        "autoClose": "86400s"
+      }
+    }
+  ],
+  "refreshInterval": "300s"
+} 
