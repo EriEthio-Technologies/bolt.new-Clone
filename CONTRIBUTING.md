@@ -85,3 +85,205 @@ pnpm test
 ## Deployment
 
 The application is deployed to Google Cloud Platform. Make sure you have the necessary GCP credentials and permissions set up before deploying.
+
+# Contributing to Gobeze AI
+
+Thank you for your interest in contributing to Gobeze AI! This document provides guidelines and instructions for contributing to our project.
+
+## Development Environment Setup
+
+### Prerequisites
+
+- Node.js (v20.15.1 or higher)
+- pnpm (v9.4.0 or higher)
+- Git
+- Google Cloud SDK
+- AT Protocol Developer Account
+
+### Initial Setup
+
+1. Fork and clone the repository:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/gobeze-ai.git
+   cd gobeze-ai
+   ```
+
+2. Run our automated setup script:
+   ```bash
+   chmod +x scripts/setup-dev.sh
+   ./scripts/setup-dev.sh
+   ```
+
+3. Configure environment variables:
+   ```bash
+   cp .env.example .env.local
+   # Edit .env.local with your credentials
+   ```
+
+## Development Workflow
+
+### Branch Naming Convention
+
+- Feature: `feature/description`
+- Bug fix: `fix/description`
+- Documentation: `docs/description`
+- Performance: `perf/description`
+
+### Coding Standards
+
+- Use TypeScript for all new code
+- Follow [Google TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html)
+- Maintain 90% or higher test coverage
+- Use ESLint and Prettier configurations provided
+
+### Debugging
+
+Use our DebugService for consistent logging:
+
+```typescript
+import { Container } from 'typedi';
+import { DebugService } from '~/lib/services/debug/DebugService';
+
+const debug = Container.get(DebugService);
+
+// Log levels: error, warn, info, debug
+debug.log('info', 'ComponentName', 'Action performed', { 
+  optional: 'metadata'
+});
+```
+
+### Testing
+
+1. Unit Tests:
+   ```bash
+   pnpm test:unit
+   ```
+
+2. Integration Tests:
+   ```bash
+   pnpm test:integration
+   ```
+
+3. E2E Tests:
+   ```bash
+   pnpm test:e2e
+   ```
+
+### Performance Monitoring
+
+Monitor your changes using our built-in tools:
+
+1. Development Dashboard:
+   ```bash
+   pnpm run dev:dashboard
+   ```
+
+2. Performance Metrics:
+   ```bash
+   pnpm run analyze
+   ```
+
+## Pull Request Process
+
+1. Create a feature branch:
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+
+2. Make your changes following our guidelines
+
+3. Run the verification suite:
+   ```bash
+   pnpm run verify
+   ```
+
+4. Update documentation:
+   - Add JSDoc comments
+   - Update README if needed
+   - Add to CHANGELOG.md
+
+5. Submit PR with:
+   - Clear description
+   - Issue references
+   - Screenshots/videos if relevant
+   - Test coverage report
+
+### PR Review Checklist
+
+- [ ] Follows coding standards
+- [ ] Includes tests
+- [ ] Updates documentation
+- [ ] Passes CI/CD pipeline
+- [ ] No security vulnerabilities
+- [ ] Performance impact assessed
+- [ ] AT Protocol compatibility maintained
+
+## AT Protocol Integration
+
+When working with AT Protocol features:
+
+1. Test with development PDS:
+   ```bash
+   pnpm run dev:pds
+   ```
+
+2. Verify protocol compliance:
+   ```bash
+   pnpm run verify:at-protocol
+   ```
+
+3. Follow AT Protocol best practices:
+   - Handle rate limits appropriately
+   - Implement proper error handling
+   - Use protocol versioning correctly
+
+## Monitoring and Debugging
+
+### Development Monitoring
+
+Access development metrics at:
+- Local: http://localhost:3001/debug
+- Staging: https://staging.gobeze.ai/debug
+
+### Log Levels
+
+Configure debug levels in `.env.local`:
+```
+DEBUG_LEVEL=debug|info|warn|error
+```
+
+### Performance Monitoring
+
+Monitor your changes:
+```bash
+pnpm run dev:monitor
+```
+
+## Release Process
+
+1. Version Bump:
+   ```bash
+   pnpm run version
+   ```
+
+2. Update CHANGELOG.md
+3. Create release PR
+4. After approval:
+   ```bash
+   pnpm run release
+   ```
+
+## Getting Help
+
+- Join our [Discord](https://discord.gg/gobeze-ai)
+- Check [Documentation](https://docs.gobeze.ai)
+- Tag maintainers in issues/PRs
+- Weekly developer office hours
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the project's MIT License.
+
+## Code of Conduct
+
+Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).

@@ -198,6 +198,27 @@
             }
           ]
         }
+      },
+      {
+        "title": "Keyboard Shortcuts Tour Usage",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_count\" AND metric.labels.component=\"KeyboardShortcutsTour\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_SUM",
+                    "groupByFields": ["metric.labels.variant"]
+                  }
+                }
+              },
+              "plotType": "STACKED_BAR",
+              "legendTemplate": "Tour Step Transitions"
+            }
+          ]
+        }
       }
     ]
   },

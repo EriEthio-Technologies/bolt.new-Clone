@@ -694,4 +694,20 @@ done
 
 echo "✅ All monitoring components verified"
 
-echo "🎉 Deployment complete!" 
+echo "🎉 Deployment complete!"
+
+# Build and package VS Code extension
+echo "Building VS Code extension..."
+cd vscode-extension
+npm run vscode:prepublish
+vsce package
+
+# Deploy VS Code extension to marketplace
+if [ "$ENVIRONMENT" = "production" ]; then
+  echo "Publishing VS Code extension..."
+  vsce publish -p $VSCODE_MARKETPLACE_TOKEN
+else
+  echo "Skipping VS Code extension publish in non-production environment"
+fi
+
+cd .. 

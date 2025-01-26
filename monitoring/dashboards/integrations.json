@@ -1,0 +1,300 @@
+{
+  "displayName": "Integrations Dashboard",
+  "gridLayout": {
+    "columns": "2",
+    "widgets": [
+      {
+        "title": "GitHub API Operations",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_count\" AND metric.labels.component=\"GitHubService\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_SUM",
+                    "groupByFields": ["metric.labels.variant"]
+                  }
+                }
+              },
+              "plotType": "STACKED_BAR",
+              "legendTemplate": "GitHub Operations"
+            }
+          ]
+        }
+      },
+      {
+        "title": "GitHub API Response Times",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_duration\" AND metric.labels.component=\"GitHubService\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_PERCENTILE_95"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "p95 Response Time"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Workflow Operations",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_count\" AND metric.labels.component=\"WorkflowService\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_SUM",
+                    "groupByFields": ["metric.labels.variant"]
+                  }
+                }
+              },
+              "plotType": "STACKED_BAR",
+              "legendTemplate": "Workflow Operations"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Workflow Success Rate",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_count\" AND metric.labels.component=\"WorkflowService\" AND metric.labels.status=\"success\"",
+                  "aggregation": {
+                    "alignmentPeriod": "300s",
+                    "perSeriesAligner": "ALIGN_RATE",
+                    "crossSeriesReducer": "REDUCE_SUM"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Success Rate"
+            }
+          ]
+        }
+      },
+      {
+        "title": "VS Code Extension Operations",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_count\" AND metric.labels.component=\"VSCodeExtensionService\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_SUM",
+                    "groupByFields": ["metric.labels.variant"]
+                  }
+                }
+              },
+              "plotType": "STACKED_BAR",
+              "legendTemplate": "Extension Operations"
+            }
+          ]
+        }
+      },
+      {
+        "title": "VS Code Command Response Times",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_duration\" AND metric.labels.component=\"VSCodeExtensionService\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_PERCENTILE_95"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "p95 Response Time"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Team Operations",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_count\" AND metric.labels.component=\"TeamService\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_SUM",
+                    "groupByFields": ["metric.labels.variant"]
+                  }
+                }
+              },
+              "plotType": "STACKED_BAR",
+              "legendTemplate": "Team Operations"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Team Member Activity",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/team/member_activity\"",
+                  "aggregation": {
+                    "alignmentPeriod": "300s",
+                    "perSeriesAligner": "ALIGN_RATE",
+                    "crossSeriesReducer": "REDUCE_SUM"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Activity Rate"
+            }
+          ]
+        }
+      },
+      {
+        "title": "RBAC Operations",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_count\" AND metric.labels.component=\"RBACService\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_SUM",
+                    "groupByFields": ["metric.labels.variant"]
+                  }
+                }
+              },
+              "plotType": "STACKED_BAR",
+              "legendTemplate": "RBAC Operations"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Permission Checks",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/rbac/permission_checks\"",
+                  "aggregation": {
+                    "alignmentPeriod": "300s",
+                    "perSeriesAligner": "ALIGN_RATE",
+                    "crossSeriesReducer": "REDUCE_SUM"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Check Rate"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Project Sharing Operations",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_count\" AND metric.labels.component=\"ProjectSharingService\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_SUM",
+                    "groupByFields": ["metric.labels.variant"]
+                  }
+                }
+              },
+              "plotType": "STACKED_BAR",
+              "legendTemplate": "Sharing Operations"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Active Project Shares",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/project/active_shares\"",
+                  "aggregation": {
+                    "alignmentPeriod": "300s",
+                    "perSeriesAligner": "ALIGN_MEAN",
+                    "crossSeriesReducer": "REDUCE_SUM"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Active Shares"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Collaborative Debug Sessions",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_count\" AND metric.labels.component=\"CollaborativeDebugService\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_SUM",
+                    "groupByFields": ["metric.labels.variant"]
+                  }
+                }
+              },
+              "plotType": "STACKED_BAR",
+              "legendTemplate": "Debug Operations"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Active Debug Sessions",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/debug/active_sessions\"",
+                  "aggregation": {
+                    "alignmentPeriod": "300s",
+                    "perSeriesAligner": "ALIGN_MEAN",
+                    "crossSeriesReducer": "REDUCE_SUM"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Active Sessions"
+            }
+          ]
+        }
+      }
+    ]
+  }
+} 
