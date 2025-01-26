@@ -1,0 +1,168 @@
+{
+  "displayName": "Planning System Dashboard",
+  "gridLayout": {
+    "columns": "2",
+    "widgets": [
+      {
+        "title": "Plan Generation Overview",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/planning/steps_count\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Steps Count"
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/planning/confidence\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Plan Confidence"
+            }
+          ],
+          "yAxis": {
+            "label": "Value",
+            "scale": "LINEAR"
+          }
+        }
+      },
+      {
+        "title": "Plan Performance",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/planning/completion_time\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Completion Time"
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/planning/processing_time\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Processing Time"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Step Metrics",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/planning/step_average_duration\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Average Duration"
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/planning/step_average_confidence\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Average Confidence"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Risk Analysis",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/planning/risks_count\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_MEAN"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Risks Count"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "displayName": "Low Plan Confidence Alert",
+      "documentation": "Plan generation confidence below threshold",
+      "conditions": [{
+        "displayName": "Confidence threshold breached",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/planning/confidence\"",
+          "comparison": "COMPARISON_LT",
+          "threshold": 0.7,
+          "duration": "300s",
+          "trigger": {
+            "count": 3
+          }
+        }
+      }],
+      "alertStrategy": {
+        "notificationRateLimit": {
+          "period": "300s"
+        },
+        "autoClose": "1800s"
+      }
+    },
+    {
+      "displayName": "High Processing Time Alert",
+      "documentation": "Plan generation processing time exceeds threshold",
+      "conditions": [{
+        "displayName": "Processing time threshold breached",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/planning/processing_time\"",
+          "comparison": "COMPARISON_GT",
+          "threshold": 5000,
+          "duration": "300s"
+        }
+      }]
+    }
+  ]
+} 

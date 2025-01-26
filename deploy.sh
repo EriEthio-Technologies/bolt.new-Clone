@@ -543,12 +543,118 @@ for METRIC in "inference_confidence" "reasoning_depth" "processing_time" \
 done
 echo "✅ Common sense metrics setup complete"
 
+# Set up Planning System Monitoring
+echo "📊 Setting up Planning System Monitoring..."
+
+# Create custom metrics descriptors for planning monitoring
+gcloud beta monitoring metrics-descriptors create \
+  custom.googleapis.com/planning/steps_count \
+  --project=$GCP_PROJECT_ID \
+  --metric-kind=gauge \
+  --value-type=double \
+  --labels=environment \
+  --display-name="Steps Count"
+
+gcloud beta monitoring metrics-descriptors create \
+  custom.googleapis.com/planning/completion_time \
+  --project=$GCP_PROJECT_ID \
+  --metric-kind=gauge \
+  --value-type=double \
+  --labels=environment \
+  --display-name="Completion Time"
+
+gcloud beta monitoring metrics-descriptors create \
+  custom.googleapis.com/planning/confidence \
+  --project=$GCP_PROJECT_ID \
+  --metric-kind=gauge \
+  --value-type=double \
+  --labels=environment \
+  --display-name="Plan Confidence"
+
+gcloud beta monitoring metrics-descriptors create \
+  custom.googleapis.com/planning/risks_count \
+  --project=$GCP_PROJECT_ID \
+  --metric-kind=gauge \
+  --value-type=double \
+  --labels=environment \
+  --display-name="Risks Count"
+
+gcloud beta monitoring metrics-descriptors create \
+  custom.googleapis.com/planning/step_average_duration \
+  --project=$GCP_PROJECT_ID \
+  --metric-kind=gauge \
+  --value-type=double \
+  --labels=environment \
+  --display-name="Step Average Duration"
+
+gcloud beta monitoring metrics-descriptors create \
+  custom.googleapis.com/planning/step_average_confidence \
+  --project=$GCP_PROJECT_ID \
+  --metric-kind=gauge \
+  --value-type=double \
+  --labels=environment \
+  --display-name="Step Average Confidence"
+
+# Create monitoring dashboard for planning metrics
+gcloud monitoring dashboards create \
+  --config-from-file=monitoring/dashboards/planning.json
+
+# Validate planning metrics setup
+echo "🔍 Validating planning metrics setup..."
+for METRIC in "steps_count" "completion_time" "confidence" "risks_count" \
+              "step_average_duration" "step_average_confidence"; do
+  if ! gcloud beta monitoring metrics-descriptors list \
+    --filter="metric.type=\"custom.googleapis.com/planning/$METRIC\"" \
+    --format="get(type)" | grep -q "planning/$METRIC"; then
+    echo "❌ Failed to create metric descriptor: $METRIC"
+    exit 1
+  fi
+done
+echo "✅ Planning metrics setup complete"
+
+# Set up UI Monitoring
+echo "📊 Setting up UI Monitoring..."
+
+# Create custom metrics descriptors for UI monitoring
+gcloud beta monitoring metrics-descriptors create \
+  custom.googleapis.com/ui/loading_duration \
+  --project=$GCP_PROJECT_ID \
+  --metric-kind=gauge \
+  --value-type=double \
+  --labels=environment,component,variant,hasOverlay \
+  --display-name="Loading Duration"
+
+gcloud beta monitoring metrics-descriptors create \
+  custom.googleapis.com/ui/loading_count \
+  --project=$GCP_PROJECT_ID \
+  --metric-kind=gauge \
+  --value-type=double \
+  --labels=environment,component,variant,hasOverlay \
+  --display-name="Loading Count"
+
+# Create monitoring dashboard for UI metrics
+gcloud monitoring dashboards create \
+  --config-from-file=monitoring/dashboards/ui.json
+
+# Validate UI metrics setup
+echo "🔍 Validating UI metrics setup..."
+for METRIC in "loading_duration" "loading_count"; do
+  if ! gcloud beta monitoring metrics-descriptors list \
+    --filter="metric.type=\"custom.googleapis.com/ui/$METRIC\"" \
+    --format="get(type)" | grep -q "ui/$METRIC"; then
+    echo "❌ Failed to create metric descriptor: $METRIC"
+    exit 1
+  fi
+done
+echo "✅ UI metrics setup complete"
+
 # Let's verify all monitoring components are properly set up
 echo "🔍 Verifying all monitoring components..."
 
 # Verify all dashboard configurations
 for DASHBOARD in "error-monitoring" "code-quality" "performance" "persistence" \
-                "versioning" "emotional" "causal" "abductive" "commonsense"; do
+                "versioning" "emotional" "causal" "abductive" "commonsense" \
+                "planning" "ui"; do
   if [ ! -f "monitoring/dashboards/${DASHBOARD}.json" ]; then
     echo "❌ Missing dashboard configuration: ${DASHBOARD}"
     exit 1
@@ -570,6 +676,11 @@ METRIC_TYPES=(
   "commonsense/inference_confidence"
   "commonsense/reasoning_depth"
   "commonsense/processing_time"
+  "planning/steps_count"
+  "planning/completion_time"
+  "planning/confidence"
+  "ui/loading_duration"
+  "ui/loading_count"
 )
 
 for METRIC in "${METRIC_TYPES[@]}"; do

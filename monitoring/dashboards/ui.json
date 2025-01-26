@@ -1,0 +1,257 @@
+{
+  "displayName": "UI Components Dashboard",
+  "gridLayout": {
+    "columns": "2",
+    "widgets": [
+      {
+        "title": "Loading States Overview",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_count\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_SUM",
+                    "crossSeriesReducer": "REDUCE_SUM",
+                    "groupByFields": ["metric.labels.component"]
+                  }
+                }
+              },
+              "plotType": "STACKED_BAR",
+              "legendTemplate": "Loading Count by Component"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Loading Duration Distribution",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_duration\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_PERCENTILE_99"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "p99 Loading Duration"
+            },
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_duration\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_PERCENTILE_50"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "p50 Loading Duration"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Error Boundary Activations",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_count\" AND metric.labels.variant=\"error\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_SUM"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Error Count"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Loading States by Type",
+        "pieChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_count\"",
+                  "aggregation": {
+                    "alignmentPeriod": "300s",
+                    "crossSeriesReducer": "REDUCE_SUM",
+                    "groupByFields": ["metric.labels.variant"]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "title": "Keyboard Shortcuts Usage",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_count\" AND metric.labels.component=\"KeyboardShortcut\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_SUM",
+                    "crossSeriesReducer": "REDUCE_SUM",
+                    "groupByFields": ["metric.labels.variant"]
+                  }
+                }
+              },
+              "plotType": "STACKED_BAR",
+              "legendTemplate": "Shortcut Usage by ID"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Keyboard Shortcut Response Time",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_duration\" AND metric.labels.component=\"KeyboardShortcut\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_PERCENTILE_95"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "p95 Response Time"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Keyboard Shortcuts Dialog Usage",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_count\" AND metric.labels.component=\"KeyboardShortcutsDialog\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_SUM"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Dialog Opens"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Keyboard Shortcuts Dialog Duration",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_duration\" AND metric.labels.component=\"KeyboardShortcutsDialog\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_PERCENTILE_50"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Median Dialog Duration"
+            }
+          ]
+        }
+      },
+      {
+        "title": "Keyboard Shortcuts Trigger Usage",
+        "xyChart": {
+          "dataSets": [
+            {
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"custom.googleapis.com/ui/loading_count\" AND metric.labels.component=\"KeyboardShortcutsTrigger\"",
+                  "aggregation": {
+                    "alignmentPeriod": "60s",
+                    "perSeriesAligner": "ALIGN_SUM"
+                  }
+                }
+              },
+              "plotType": "LINE",
+              "legendTemplate": "Trigger Activations"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "displayName": "High Loading Duration Alert",
+      "documentation": "Loading state duration exceeds threshold",
+      "conditions": [{
+        "displayName": "Loading duration threshold breached",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/ui/loading_duration\"",
+          "comparison": "COMPARISON_GT",
+          "threshold": 3000,
+          "duration": "60s",
+          "trigger": {
+            "count": 3
+          }
+        }
+      }],
+      "alertStrategy": {
+        "notificationRateLimit": {
+          "period": "300s"
+        },
+        "autoClose": "1800s"
+      }
+    },
+    {
+      "displayName": "High Error Rate Alert",
+      "documentation": "Error boundary activation rate is high",
+      "conditions": [{
+        "displayName": "Error rate threshold breached",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/ui/loading_count\" AND metric.labels.variant=\"error\"",
+          "comparison": "COMPARISON_GT",
+          "threshold": 10,
+          "duration": "300s"
+        }
+      }]
+    },
+    {
+      "displayName": "Slow Keyboard Shortcut Response",
+      "documentation": "Keyboard shortcut execution time exceeds threshold",
+      "conditions": [{
+        "displayName": "Response time threshold breached",
+        "conditionThreshold": {
+          "filter": "metric.type=\"custom.googleapis.com/ui/loading_duration\" AND metric.labels.component=\"KeyboardShortcut\"",
+          "comparison": "COMPARISON_GT",
+          "threshold": 100,
+          "duration": "60s",
+          "trigger": {
+            "count": 3
+          }
+        }
+      }]
+    }
+  ]
+} 
