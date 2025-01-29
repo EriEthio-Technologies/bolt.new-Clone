@@ -1,4 +1,5 @@
 import { validateEnv } from '~/config/env.server';
+import { getRateLimitState, setRateLimitState } from './rateLimitCache';
 import { RateLimitError } from '~/errors/RateLimitError';
 import type { MetricsService } from '~/services/MetricsService';
 
@@ -32,9 +33,8 @@ class RateLimiter {
     const key = this.getKey(request);
     const now = Date.now();
 
-    // Get current state from KV store
-    const stateJson = await this.context.env.RATE_LIMIT_STORE.get(key);
-    const state: RateLimitState = stateJson ? JSON.parse(stateJson) : {
+    // Get state from cache or KV store
+    const state: RateLimitState = await getRateLimitState(key, this.context.env.RATE_LIMIT_STORE) || {
       count: 0,
       resetTime: now + this.config.windowMs
     };
@@ -51,12 +51,13 @@ class RateLimiter {
       throw new RateLimitError(`API rate limit exceeded for ${this.type} requests`);
     }
 
-    // Increment counter and store
+    // Increment counter and store with optimized caching
     state.count++;
-    await this.context.env.RATE_LIMIT_STORE.put(
+    await setRateLimitState(
       key,
-      JSON.stringify(state),
-      { expirationTtl: Math.ceil(this.config.windowMs / 1000) }
+      state,
+      this.context.env.RATE_LIMIT_STORE,
+      Math.ceil(this.config.windowMs / 1000)
     );
 
     // Set rate limit headers

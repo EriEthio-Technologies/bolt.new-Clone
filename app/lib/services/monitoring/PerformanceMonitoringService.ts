@@ -1,34 +1,78 @@
 import { Service } from 'typedi';
+import { MetricsBatchProcessor } from './PerformanceMonitoringService.batch';
 import { UIMonitor } from './UIMonitor';
 import { DebugService } from '../debug/DebugService';
+import { MemoryOptimizer } from '~/lib/optimization/MemoryOptimizer';
+import { BatchProcessingError, ResourceCollectionError } from '~/lib/monitoring/errors';
 
-interface PerformanceMetric {
-  name: string;
-  value: number;
-  unit: 'ms' | 'bytes' | 'count' | 'percent';
-  timestamp: Date;
-  tags: Record<string, string>;
-}
-
-interface ResourceUsage {
-  cpu: number;
-  memory: number;
-  networkIn: number;
-  networkOut: number;
-  timestamp: Date;
-}
+import { PerformanceMetric, ResourceUsage, MonitoringConfig } from '~/lib/types/monitoring';
 
 @Service()
-export class PerformanceMonitoringService {
-  private uiMonitor: UIMonitor;
-  private debug: DebugService;
-  private metrics: PerformanceMetric[] = [];
-  private resourceUsage: ResourceUsage[] = [];
+export class PerformanceMonitoringService extends BaseMonitoringService implements MonitoringService {
+  protected readonly serviceName = 'PerformanceMonitoringService';
+  
+  private static readonly DEFAULT_CONFIG: MonitoringOptions = {
+    maxMetricsLength: 10000,
+    metricsRetentionPeriod: 24 * 60 * 60 * 1000, // 24 hours
+    enableResourceMonitoring: true,
+    resourceMetricsInterval: 60000, // 1 minute
+  };
 
-  constructor() {
-    this.uiMonitor = new UIMonitor();
-    this.debug = new DebugService();
+  private readonly MAX_METRICS_LENGTH: number;
+  private readonly BATCH_SIZE = 100;
+  private readonly BATCH_INTERVAL = 5000; // 5 seconds
+  protected readonly serviceName = 'PerformanceMonitoringService';
+
+  private static readonly DEFAULT_CONFIG: MonitoringOptions = {
+    maxMetricsLength: 10000,
+    metricsRetentionPeriod: 24 * 60 * 60 * 1000, // 24 hours
+    enableResourceMonitoring: true,
+    resourceMetricsInterval: 60000, // 1 minute
+  };
+
+  private resourceUsage: ResourceUsage[] = [];
+  private metrics: PerformanceMetric[] = [];
+  private metricsBatch: PerformanceMetric[] = [];
+  private batchTimeout: NodeJS.Timeout | null = null;
+
+  private readonly memoryOptimizer: MemoryOptimizer;
+  
+  constructor(
+    private readonly batchProcessor: MetricsBatchProcessor,
+    private readonly debug: DebugService,
+    private readonly uiMonitor: UIMonitor
+  ) {
+    this.memoryOptimizer = new MemoryOptimizer(this);
     this.startResourceMonitoring();
+    this.initializeBatchProcessing();
+  }
+  private readonly config: MonitoringOptions;
+  private resourceUsage: ResourceUsage[] = [];
+  private metrics: PerformanceMetric[] = [];
+  private metricsBatch: PerformanceMetric[] = [];
+  private batchTimeout: NodeJS.Timeout | null = null;
+  private cleanup: (() => void)[] = [];
+
+  constructor(
+    private readonly batchProcessor: MetricsBatchProcessor,
+    debug: DebugService,
+    private readonly uiMonitor: UIMonitor,
+    config?: Partial<MonitoringOptions>
+  ) {
+    super(debug);
+    this.config = { ...PerformanceMonitoringService.DEFAULT_CONFIG, ...config };
+    this.memoryOptimizer = new MemoryOptimizer(this);
+    this.startResourceMonitoring();
+    this.initializeBatchProcessing();
+
+    // Register cleanup handlers
+    this.cleanup.push(() => {
+      if (this.batchTimeout) {
+        clearTimeout(this.batchTimeout);
+        this.batchTimeout = null;
+      }
+      this.memoryOptimizer.cleanup();
+    });
   }
 
   private startResourceMonitoring(): void {
@@ -53,6 +97,7 @@ export class PerformanceMonitoringService {
       // Trim history to last 24 hours
       const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
       this.resourceUsage = this.resourceUsage.filter(u => u.timestamp > dayAgo);
+      this.pruneMetrics();
 
       await this.trackMetric({
         name: 'system.cpu.usage',
@@ -61,22 +106,54 @@ export class PerformanceMonitoringService {
         tags: { source: 'system' }
       });
     } catch (error) {
-      this.debug.log('error', 'PerformanceMonitoringService', 'Failed to collect resource metrics', { error });
+      throw new ResourceCollectionError('Failed to collect resource metrics', { error });
     }
   }
 
-  async trackMetric(metric: Omit<PerformanceMetric, 'timestamp'>): Promise<void> {
+  private initializeBatchProcessing(): void {
+    this.processBatch = this.processBatch.bind(this);
+  }
+
+  private pruneMetrics(): void {
+    this.metrics = pruneOldMetrics(this.metrics, this.config.metricsRetentionPeriod);
+  }
+
+  private async processBatch(): Promise<void> {
+    if (this.metricsBatch.length === 0) return;
+
+    const batchToProcess = [...this.metricsBatch];
+    this.metricsBatch = [];
+    
+    try {
+      await this.batchProcessor.processBatch(batchToProcess);
+    } catch (error) {
+      throw new BatchProcessingError('Failed to process metrics batch', { error });
+      // On failure, retain the metrics that weren't processed
+      this.metricsBatch.push(...batchToProcess);
+    }
+  }
+
+  protected async processMetric(metric: PerformanceMetric): Promise<void> {
     const startTime = Date.now();
 
     try {
-      this.debug.log('info', 'PerformanceMonitoringService', 'Tracking metric', metric);
-
       const fullMetric: PerformanceMetric = {
         ...metric,
         timestamp: new Date()
       };
 
       this.metrics.push(fullMetric);
+      this.metricsBatch.push(fullMetric);
+
+      if (this.metricsBatch.length >= this.BATCH_SIZE) {
+        if (this.batchTimeout) {
+          clearTimeout(this.batchTimeout);
+          this.batchTimeout = null;
+        }
+        await this.processBatch();
+      } else if (!this.batchTimeout) {
+        this.batchTimeout = setTimeout(this.processBatch, this.BATCH_INTERVAL);
+      }
 
       // Here we would send metrics to our monitoring service (e.g., Cloud Monitoring)
 
@@ -92,12 +169,7 @@ export class PerformanceMonitoringService {
     }
   }
 
-  async getMetrics(params: {
-    name?: string;
-    startTime: Date;
-    endTime: Date;
-    tags?: Record<string, string>;
-  }): Promise<PerformanceMetric[]> {
+  async getMetrics(params: MetricsQuery): Promise<PerformanceMetric[]> {
     const startTime = Date.now();
 
     try {
