@@ -1,0 +1,28 @@
+apiVersion: audit.k8s.io/v1
+kind: Policy
+rules:
+- level: Metadata
+  resources:
+  - group: ""
+    resources: ["secrets", "configmaps"]
+- level: RequestResponse
+  resources:
+  - group: ""
+    resources: ["pods"]
+  - group: "authorization.k8s.io"
+    resources: ["*"]
+- level: RequestResponse
+  users: ["system:serviceaccount:default:api-service"]
+  resources:
+  - group: "*"
+    resources: ["*"]
+- level: None
+  users: ["system:kube-proxy"]
+  resources:
+  - group: "" # core
+    resources: ["endpoints", "services", "services/status"]
+- level: None
+  nonResourceURLs:
+  - /healthz*
+  - /version
+  - /swagger*

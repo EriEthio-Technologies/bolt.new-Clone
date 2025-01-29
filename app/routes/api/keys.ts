@@ -5,7 +5,10 @@ import { validateAPIKeyRequest } from '~/utils/validation';
 import { authMiddleware } from '~/middleware/auth';
 import { APIKeyError } from '~/errors/APIKeyError';
 
-export async function action({ request }: ActionFunctionArgs) {
+import { rateLimitMiddleware } from '~/middleware/rateLimit';
+
+export async function action({ request, context }: ActionFunctionArgs) {
+  await rateLimitMiddleware(request, context);
   await authMiddleware(request);
 
   if (request.method === 'POST') {

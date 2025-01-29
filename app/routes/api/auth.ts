@@ -4,7 +4,10 @@ import { AuthService } from '~/lib/services/auth/AuthService';
 import { validateAuthRequest } from '~/utils/validation';
 import { AuthError } from '~/errors/AuthError';
 
-export async function action({ request }: ActionFunctionArgs) {
+import { rateLimitMiddleware } from '~/middleware/rateLimit';
+
+export async function action({ request, context }: ActionFunctionArgs) {
+  await rateLimitMiddleware(request, context);
   if (request.method !== 'POST') {
     return json({ error: 'Method not allowed' }, { status: 405 });
   }

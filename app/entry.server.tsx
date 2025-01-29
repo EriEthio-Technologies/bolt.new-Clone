@@ -7,6 +7,8 @@ import { errorHandler } from './middleware/errorHandler';
 import express from 'express';
 import { Response } from '@remix-run/node';
 import { metricsMiddleware } from './middleware/metrics';
+import { loggingMiddleware } from './middleware/logging.server';
+import { ResourceMetricsCollector } from './services/ResourceMetricsCollector';
 
 export default async function handleRequest(
   request: Request,
@@ -19,6 +21,12 @@ export default async function handleRequest(
   // Apply middlewares
   instance.use(corsMiddleware);
   instance.use(rateLimitMiddleware);
+  
+  // Initialize resource metrics collection
+  ResourceMetricsCollector.getInstance().start();
+  
+  // Add monitoring middleware
+  instance.use(loggingMiddleware());
   instance.use(metricsMiddleware);
   
   // Apply routes

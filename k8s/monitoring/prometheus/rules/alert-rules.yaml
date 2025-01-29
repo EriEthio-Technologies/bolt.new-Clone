@@ -8,6 +8,50 @@ data:
     groups:
     - name: gobeze.ai
       rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Service is down
+          description: Service {{ $labels.job }} has been down for more than 1 minute
+      
+      - alert: DatabaseConnectionFailures
+        expr: rate(database_connection_failures_total[5m]) > 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Database connection failures detected
+          description: Database connection failures detected for {{ $labels.instance }}
+      
+      - alert: SlowQueries
+        expr: rate(database_query_duration_seconds_bucket{le="10.0"}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Slow database queries detected
+          description: Multiple slow queries detected on {{ $labels.instance }}
+      
+      - alert: NetworkLatency
+        expr: rate(network_latency_seconds[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High network latency
+          description: Network latency is higher than expected for {{ $labels.instance }}
+      
+      - alert: DiskSpaceRunningLow
+        expr: disk_free_bytes / disk_total_bytes * 100 < 15
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Low disk space
+          description: Disk space is below 15% on {{ $labels.instance }}
       - alert: HighErrorRate
         expr: sum(rate(http_requests_total{status_code=~"5.*"}[5m])) / sum(rate(http_requests_total[5m])) * 100 > 5
         for: 5m
@@ -33,4 +77,31 @@ data:
           severity: warning
         annotations:
           summary: High memory usage
-          description: Memory usage is above 85% for the last 5 minutes 
+          description: Memory usage is above 85% for the last 5 minutes
+
+      - alert: HighCPUUsage
+        expr: sum(rate(container_cpu_usage_seconds_total{container!=""}[5m])) / sum(machine_cpu_cores) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High CPU usage
+          description: CPU usage is above 80% for the last 5 minutes
+
+      - alert: PodRestartingFrequently
+        expr: increase(kube_pod_container_status_restarts_total[1h]) > 5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Pod restarting frequently
+          description: Pod has restarted more than 5 times in the last hour
+
+      - alert: HighRequestRate
+        expr: sum(rate(http_requests_total[5m])) > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High request rate
+          description: Request rate is above 1000 requests per second 

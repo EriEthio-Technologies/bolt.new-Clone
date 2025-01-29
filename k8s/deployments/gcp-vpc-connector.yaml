@@ -1,0 +1,35 @@
+apiVersion: vpc.cnrm.cloud.google.com/v1beta1
+kind: VPCConnector
+metadata:
+  name: main-vpc-connector
+  namespace: production
+spec:
+  ipCidrRange: "10.8.0.0/28"
+  network: projects/${PROJECT_ID}/global/networks/main-network
+  machineType: f1-micro
+  minInstances: 2
+  maxInstances: 10
+  throughput: MODERATE
+  project: ${PROJECT_ID}
+---
+apiVersion: vpc.cnrm.cloud.google.com/v1beta1
+kind: VPCConnectorIPRange
+metadata:
+  name: main-vpc-connector-range
+  namespace: production
+spec:
+  ipCidrRange: "10.8.0.0/28"
+  network: projects/${PROJECT_ID}/global/networks/main-network
+  project: ${PROJECT_ID}
+---
+apiVersion: vpc.cnrm.cloud.google.com/v1beta1
+kind: VPCConnectorRoute
+metadata:
+  name: main-vpc-connector-route
+  namespace: production
+spec:
+  vpcConnector: main-vpc-connector
+  route:
+    destRange: "0.0.0.0/0"
+    priority: 1000
+  project: ${PROJECT_ID}

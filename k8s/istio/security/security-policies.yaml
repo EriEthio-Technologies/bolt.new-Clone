@@ -11,13 +11,32 @@ spec:
   - from:
     - source:
         principals: ["cluster.local/ns/default/sa/at-protocol-client"]
+        notRequestPrincipals: ["*"]
     to:
     - operation:
-        methods: ["GET", "POST"]
-        paths: ["/xrpc/*"]
+        methods: ["GET", "POST", "PUT", "DELETE"]
+        paths: ["/xrpc/*", "/api/*"]
     when:
     - key: request.auth.claims[iss]
       values: ["https://auth.atproto.ai"]
+    - key: connection.sni
+      values: ["*.atproto.ai"]
+  - from:
+    - source:
+        namespaces: ["monitoring"]
+    to:
+    - operation:
+        methods: ["GET"]
+        paths: ["/metrics", "/health"]
+---
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: default
+spec:
+  mtls:
+    mode: STRICT
 ---
 apiVersion: security.istio.io/v1beta1
 kind: PeerAuthentication

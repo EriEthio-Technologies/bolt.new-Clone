@@ -1,0 +1,69 @@
+---
+# Monitoring Configuration
+monitoring:
+  metrics:
+    enabled: true
+    endpoint: /metrics
+    # Metrics collection interval in seconds
+    interval: 15
+    
+  alerts:
+    enabled: true
+    # Alert thresholds
+    thresholds:
+      cpu_usage_percent: 80
+      memory_usage_percent: 85
+      error_rate_percent: 5
+      response_time_ms: 1000
+      concurrent_connections: 1000
+    
+  notifications:
+    slack:
+      enabled: true
+      webhook_url: ${SLACK_WEBHOOK_URL}
+      channel: "#alerts-production"
+    email:
+      enabled: true
+      recipients:
+        - devops@company.com
+        - oncall@company.com
+    
+  logging:
+    level: info
+    format: json
+    metrics_enabled: true
+    
+  dashboards:
+    - name: "Application Overview"
+      panels:
+        - title: "Request Rate"
+          metric: "http_requests_total"
+          type: "graph"
+        - title: "Error Rate"
+          metric: "http_errors_total"
+          type: "graph"
+        - title: "Response Times"
+          metric: "http_response_time_seconds"
+          type: "heatmap"
+        - title: "CPU Usage"
+          metric: "process_cpu_usage"
+          type: "gauge"
+    - name: "Security Dashboard"
+      panels:
+        - title: "Rate Limit Hits"
+          metric: "rate_limit_hits_total"
+          type: "graph"
+        - title: "Security Scan Blocks"
+          metric: "security_blocks_total"
+          type: "graph"
+        - title: "Failed Auth Attempts"
+          metric: "auth_failures_total"
+          type: "graph"
+
+  performance:
+    tracing:
+      enabled: true
+      sample_rate: 0.1
+    profiling:
+      enabled: true
+      interval: 300

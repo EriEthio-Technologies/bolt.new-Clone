@@ -17,11 +17,33 @@ spec:
         header:
           name: x-user-id
   metrics:
+  - thresholds:
+      memoryUsage: 85
+      cpuUsage: 80
+      errorRate: 5
+      requestLatency: 1000
+      diskUsage: 85
+      networkLatency: 100
   - providers:
     - name: prometheus
     overrides:
     - match:
         metric: REQUEST_COUNT
+        mode: CLIENT_AND_SERVER
+    - match:
+        metric: REQUEST_DURATION
+        mode: CLIENT_AND_SERVER
+    - match:
+        metric: REQUEST_SIZE
+        mode: CLIENT_AND_SERVER
+    - match:
+        metric: RESPONSE_SIZE
+        mode: CLIENT_AND_SERVER
+    - match:
+        metric: TCP_CONNECTIONS_OPENED
+        mode: CLIENT_AND_SERVER
+    - match:
+        metric: TCP_CONNECTIONS_CLOSED
         mode: CLIENT_AND_SERVER
       tagOverrides:
         response_code:

@@ -1,0 +1,38 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: performance-alerts
+  namespace: monitoring
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: performance.rules
+      rules:
+        - alert: HighCPUUsage
+          expr: process_cpu_usage_percent > 80
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: High CPU usage detected
+            description: CPU usage is above 80% for 5 minutes
+
+        - alert: HighMemoryUsage
+          expr: process_memory_usage_bytes / 1024 / 1024 > 1024  # Alert when memory usage > 1GB
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: High memory usage detected
+            description: Memory usage is above 1GB for 5 minutes
+
+        - alert: SlowHTTPResponses
+          expr: rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m]) > 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Slow HTTP responses detected
+            description: Average HTTP response time is above 1 second for 5 minutes

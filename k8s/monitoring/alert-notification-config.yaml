@@ -1,0 +1,105 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: notification-config
+  namespace: monitoring
+spec:
+  route:
+    receiver: 'default'
+    groupBy: ['alertname', 'cluster', 'service', 'severity']
+    groupWait: 30s
+    groupInterval: 5m
+    repeatInterval: 4h
+    
+    routes:
+    - receiver: 'database-alerts'
+      matchers:
+      - name: alertname
+        matchRegexp: 'Database.*|SlowQueries'
+      groupWait: 0s
+      repeatInterval: 30m
+      
+    - receiver: 'critical-alerts'
+      matchers:
+      - name: severity
+        value: critical
+      groupWait: 0s
+      repeatInterval: 1h
+    
+    - receiver: 'warning-alerts'
+      matchers:
+      - name: severity
+        value: warning
+      groupWait: 1m
+      repeatInterval: 2h
+    
+    routes:
+    - receiver: 'critical-alerts'
+      matchers:
+      - name: severity
+        value: critical
+      groupWait: 0s
+      repeatInterval: 1h
+    
+    - receiver: 'warning-alerts'
+      matchers:
+      - name: severity
+        value: warning
+      groupWait: 1m
+      repeatInterval: 2h
+
+  receivers:
+  - name: 'database-alerts'
+    slackConfigs:
+    - apiURL: '${SLACK_WEBHOOK_URL}'
+      channel: '#database-alerts'
+      sendResolved: true
+      title: '{{ .CommonAnnotations.summary }}'
+      text: "{{ range .Alerts }}*Alert:* {{ .Annotations.summary }}\n*Description:* {{ .Annotations.description }}\n*Severity:* {{ .Labels.severity }}\n{{ end }}"
+    emailConfigs:
+    - to: 'dba@example.com'
+      from: 'alerting@example.com'
+      smarthost: 'smtp.example.com:587'
+      authUsername: '${SMTP_USERNAME}'
+      authPassword: '${SMTP_PASSWORD}'
+      
+  - name: 'default'
+    emailConfigs:
+    - to: 'team@example.com'
+      from: 'alerting@example.com'
+      smarthost: 'smtp.example.com:587'
+      authUsername: '${SMTP_USERNAME}'
+      authPassword: '${SMTP_PASSWORD}'
+  
+  - name: 'critical-alerts'
+    slackConfigs:
+    - apiURL: '${SLACK_WEBHOOK_URL}'
+      channel: '#critical-alerts'
+      sendResolved: true
+      title: '{{ .CommonAnnotations.summary }}'
+      text: "{{ range .Alerts }}*Alert:* {{ .Annotations.summary }}\n*Description:* {{ .Annotations.description }}\n*Severity:* {{ .Labels.severity }}\n{{ end }}"
+    pagerdutyConfigs:
+    - serviceKey: '${PAGERDUTY_SERVICE_KEY}'
+      description: '{{ .CommonAnnotations.summary }}'
+      severity: critical
+      
+  - name: 'warning-alerts'
+    slackConfigs:
+    - apiURL: '${SLACK_WEBHOOK_URL}'
+      channel: '#warning-alerts'
+      sendResolved: true
+      title: '{{ .CommonAnnotations.summary }}'
+      text: "{{ range .Alerts }}*Alert:* {{ .Annotations.summary }}\n*Description:* {{ .Annotations.description }}\n*Severity:* {{ .Labels.severity }}\n{{ end }}"
+      channel: '#critical-alerts'
+      title: '{{ .CommonLabels.alertname }}'
+      text: "{{ range .Alerts }}*Alert:* {{ .Annotations.summary }}\n*Description:* {{ .Annotations.description }}\n*Severity:* {{ .Labels.severity }}\n{{ end }}"
+    pagerdutyConfigs:
+    - serviceKey: '${PAGERDUTY_SERVICE_KEY}'
+      description: '{{ .CommonLabels.alertname }}'
+      
+  - name: 'warning-alerts'
+    slackConfigs:
+    - apiURL: '${SLACK_WEBHOOK_URL}'
+      channel: '#monitoring-alerts'
+      title: '{{ .CommonLabels.alertname }}'
+      text: "{{ range .Alerts }}*Alert:* {{ .Annotations.summary }}\n*Description:* {{ .Annotations.description }}\n*Severity:* {{ .Labels.severity }}\n{{ end }}"

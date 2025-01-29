@@ -1,0 +1,73 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      rampTo: 50
+      name: "Warm up phase"
+    - duration: 120
+      arrivalRate: 50
+      name: "Load test phase"
+    - duration: 60
+      arrivalRate: 100
+      name: "Stress test phase"
+  
+  defaults:
+    headers:
+      x-api-key: "{{ $processEnvironment.API_KEY }}"
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "Basic API flow"
+  - name: "API Operations"
+    weight: 30
+    exec: "apiOperations"
+  - name: "File Operations"
+    weight: 35
+    exec: "fileOperations"
+  - name: "Collaborative Editing"
+    weight: 35
+    exec: "collaborativeEditing"
+    flow:
+      - get:
+          url: "/health"
+          expect:
+            - statusCode: 200
+      
+      - post:
+          url: "/api/auth/login"
+          json:
+            username: "{{ $processEnvironment.TEST_USERNAME }}"
+            password: "{{ $processEnvironment.TEST_PASSWORD }}"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+          expect:
+            - statusCode: 200
+            - hasProperty: "token"
+      
+      - get:
+          url: "/api/documents"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+      
+      - think: 2
+      
+      - post:
+          url: "/api/documents/validate"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            documentUrl: "https://example.com/test.pdf"
+            type: "pdf"
+          expect:
+            - statusCode: 200
+            - hasProperty: "valid"
+            
+plugins:
+  expect: {}
+  metrics-by-endpoint: {}
+
+processor: "./load-test-processor.js"

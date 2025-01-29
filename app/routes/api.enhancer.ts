@@ -6,7 +6,10 @@ import { stripIndents } from '~/utils/stripIndent';
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
+import { rateLimitMiddleware } from '~/middleware/rateLimit';
+
 export async function action(args: ActionFunctionArgs) {
+  await rateLimitMiddleware(args.request, args.context);
   return enhancerAction(args);
 }
 

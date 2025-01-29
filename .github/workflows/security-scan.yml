@@ -1,0 +1,55 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly scan
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install security tools
+      run: |
+        docker pull owasp/zap2docker-stable
+        npm install -g dependency-check
+        npm install -g @cyclonedx/bom
+
+    - name: Run security scan
+      run: |
+        chmod +x ./app/security/security-scan.sh
+        ./app/security/security-scan.sh
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-reports
+        path: |
+          reports/security-report.json
+          reports/security-report.md
+          reports/dependency-check/**
+          reports/eslint-security.json
+          reports/zap-report.*
+
+    - name: Check for critical vulnerabilities
+      run: |
+        CRITICAL=$(jq '.summary.critical' reports/security-report.json)
+        if [ "$CRITICAL" -gt 0 ]; then
+          echo "Critical vulnerabilities found!"
+          exit 1
+        fi
