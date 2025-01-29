@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: security-monitoring-config
+  namespace: monitoring
+data:
+  alertThresholds: |
+    {
+      "failedLogins": "5",
+      "suspiciousActivities": "3",
+      "unauthorizedAccess": "1",
+      "bruteForceAttempts": "3",
+      "anomalyDetection": "0.75"
+    }
+  monitoringIntervals: |
+    {
+      "securityChecks": "60",
+      "metricCollection": "30",
+      "logAnalysis": "300"
+    }
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: security-monitoring
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: security-monitoring
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+  namespaceSelector:
+    matchNames:
+    - default

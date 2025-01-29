@@ -19,16 +19,23 @@ export class PDFProcessor {
     try {
       const data = await pdf(buffer);
       
-      return {
+      const result: PDFProcessingResult = {
         content: data.text,
         metadata: {
           pageCount: data.numpages,
-          title: data.info.Title,
-          author: data.info.Author,
-          creationDate: data.info.CreationDate ? new Date(data.info.CreationDate) : undefined,
-          keywords: data.info.Keywords?.split(',').map(k => k.trim()),
-        },
+          title: data.info?.Title || undefined,
+          author: data.info?.Author || undefined,
+          creationDate: data.info?.CreationDate ? new Date(data.info.CreationDate) : undefined,
+          keywords: data.info?.Keywords ? data.info.Keywords.split(',').map(k => k.trim()) : undefined
+        }
       };
+
+      // Validate the extraction result
+      if (!result.content) {
+        throw new Error('PDF content extraction failed');
+      }
+
+      return result;
     } catch (error) {
       throw new Error(`Failed to process PDF: ${error.message}`);
     }

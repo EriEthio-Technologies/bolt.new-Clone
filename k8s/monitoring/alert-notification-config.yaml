@@ -76,8 +76,16 @@ spec:
     - apiURL: '${SLACK_WEBHOOK_URL}'
       channel: '#critical-alerts'
       sendResolved: true
-      title: '{{ .CommonAnnotations.summary }}'
-      text: "{{ range .Alerts }}*Alert:* {{ .Annotations.summary }}\n*Description:* {{ .Annotations.description }}\n*Severity:* {{ .Labels.severity }}\n{{ end }}"
+      title: '[CRITICAL] {{ .CommonAnnotations.summary }}'
+      text: "{{ range .Alerts }}*Alert:* {{ .Annotations.summary }}\n*Description:* {{ .Annotations.description }}\n*Severity:* {{ .Labels.severity }}\n*Status:* {{ .Status }}\n{{ end }}"description }}\n*Severity:* {{ .Labels.severity }}\n*Service:* {{ .Labels.service }}\n*Cluster:* {{ .Labels.cluster }}\n{{ end }}"
+    opsgenie_configs:
+    - apiKey: '${OPSGENIE_API_KEY}'
+      message: '{{ .CommonAnnotations.summary }}'
+      description: "{{ range .Alerts }}{{ .Annotations.description }}\n{{ end }}"
+      priority: P1
+      responders:
+        - name: "SRE Team"
+          type: "team"
     pagerdutyConfigs:
     - serviceKey: '${PAGERDUTY_SERVICE_KEY}'
       description: '{{ .CommonAnnotations.summary }}'

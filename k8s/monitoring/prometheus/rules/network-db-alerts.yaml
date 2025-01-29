@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: network-db-alert-rules
+  namespace: monitoring
+data:
+  network-db.rules: |
+    groups:
+    - name: network_alerts
+      rules:
+      - alert: HighNetworkLatency
+        expr: rate(network_latency_seconds[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          category: network
+        annotations:
+          summary: High network latency detected
+          description: Network latency is above 100ms for 5 minutes
+
+      - alert: NetworkPacketLoss
+        expr: rate(network_packet_loss_total[5m]) > 0.01
+        for: 5m
+        labels:
+          severity: warning
+          category: network
+        annotations:
+          summary: Network packet loss detected
+          description: Packet loss rate is above 1% for 5 minutes
+
+      - alert: NetworkBandwidthSaturation
+        expr: rate(network_bytes_total[5m]) / network_interface_bandwidth_bytes > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          category: network
+        annotations:
+          summary: Network bandwidth near saturation
+          description: Network utilization is above 85% of capacity
+
+    - name: database_alerts
+      rules:
+      - alert: DatabaseHighConnections
+        expr: mysql_global_status_threads_connected / mysql_global_variables_max_connections * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: High database connections
+          description: Database connection usage is above 80% of maximum
+
+      - alert: SlowQueries
+        expr: rate(mysql_global_status_slow_queries[5m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: Slow queries detected
+          description: More than 5 slow queries per second detected
+
+      - alert: DatabaseReplicationLag
+        expr: mysql_slave_status_seconds_behind_master > 300
+        for: 5m
+        labels:
+          severity: critical
+          category: database
+        annotations:
+          summary: Database replication lag
+          description: Replication lag is more than 5 minutes

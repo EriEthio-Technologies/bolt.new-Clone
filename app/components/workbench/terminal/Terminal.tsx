@@ -33,11 +33,17 @@ export const Terminal = memo(
 
       const terminal = new XTerm({
         cursorBlink: true,
+        cursorStyle: 'bar',
         convertEol: true,
         disableStdin: readonly,
         theme: getTerminalTheme(readonly ? { cursor: '#00000000' } : {}),
-        fontSize: 12,
-        fontFamily: 'Menlo, courier-new, courier, monospace',
+        fontSize: 13,
+        fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+        letterSpacing: 0,
+        lineHeight: 1.2,
+        scrollback: 5000,
+        smoothScrollDuration: 200,
+        allowTransparency: true,
       });
 
       terminalRef.current = terminal;
@@ -81,6 +87,18 @@ export const Terminal = memo(
       };
     }, []);
 
-    return <div className={className} ref={terminalElementRef} />;
+    return (
+      <div 
+        className={classNames(
+          "transition-opacity duration-200",
+          className,
+          {
+            "opacity-75": readonly,
+            "opacity-100 hover:opacity-100": !readonly
+          }
+        )}
+        ref={terminalElementRef}
+      />
+    );
   }),
 );

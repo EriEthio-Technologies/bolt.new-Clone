@@ -1,0 +1,34 @@
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: restricted-security
+spec:
+  allowPrivilegeEscalation: false
+  defaultAddCapabilities: []
+  fsGroup:
+    type: MustRunAs
+    ranges:
+    - min: 1000
+      max: 65535
+  readOnlyRootFilesystem: true
+  requiredDropCapabilities:
+  - ALL
+  runAsUser:
+    type: MustRunAs
+    ranges:
+    - min: 1000
+      max: 65535
+  seLinuxContext:
+    type: MustRunAs
+  supplementalGroups:
+    type: MustRunAs
+    ranges:
+    - min: 1000
+      max: 65535
+  volumes:
+  - configMap
+  - downwardAPI
+  - emptyDir
+  - persistentVolumeClaim
+  - projected
+  - secret

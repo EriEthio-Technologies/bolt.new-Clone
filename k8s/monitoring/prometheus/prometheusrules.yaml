@@ -1,0 +1,28 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: monitoring-rules
+  namespace: monitoring
+spec:
+  groups:
+  - name: recording.rules
+    rules:
+    - record: network:latency:avg
+      expr: avg(rate(network_latency_seconds_sum[5m]) / rate(network_latency_seconds_count[5m])) by (interface)
+    
+    - record: network:packet_loss:ratio
+      expr: sum(rate(network_packet_loss_total[5m])) / sum(rate(network_packets_total[5m]))
+    
+    - record: database:connection_ratio
+      expr: mysql_global_status_threads_connected / mysql_global_variables_max_connections
+    
+    - record: database:slow_queries:rate
+      expr: rate(mysql_global_status_slow_queries[5m])
+    - record: job:http_requests_total:rate5m
+      expr: sum(rate(http_requests_total[5m])) by (job)
+    - record: job:http_errors_total:rate5m
+      expr: sum(rate(http_requests_total{status=~"5.."}[5m])) by (job)
+    - record: job:memory_usage:percent
+      expr: sum(container_memory_usage_bytes) by (job) / sum(container_memory_limit_bytes) by (job) * 100
+    - record: job:cpu_usage:percent
+      expr: avg(rate(container_cpu_usage_seconds_total[5m])) by (job) * 100

@@ -5,8 +5,9 @@ This document outlines the security measures and practices implemented in the Co
 ## Authentication & Authorization
 
 ### JWT Authentication
-- Tokens expire after 1 hour
-- Refresh tokens handled securely
+- Tokens expire after 30 minutes for enhanced security
+- Refresh tokens valid for 7 days
+- Rate limiting: 100 requests per 15-minute window
 - Passwords hashed using bcrypt
 - Rate limiting on auth endpoints
 
@@ -60,10 +61,13 @@ This document outlines the security measures and practices implemented in the Co
 ## Monitoring & Alerts
 
 ### Security Monitoring
-- Failed login attempts
-- Suspicious activity detection
-- Resource usage monitoring
-- Error rate monitoring
+- Failed login attempts (alerts at 5+ failures)
+- Suspicious activity detection (alerts at 3+ incidents)
+- Unauthorized access monitoring (immediate alert)
+- Resource usage monitoring with customizable thresholds
+- Error rate monitoring with real-time alerts
+- Automated security event tracking every 60 seconds
+- Comprehensive metric collection every 30 seconds
 
 ### Security Alerts
 - Critical vulnerability alerts

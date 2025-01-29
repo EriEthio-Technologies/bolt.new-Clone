@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auto-response-rules
+  namespace: monitoring
+data:
+  auto-response.rules: |
+    # Automated response rules for DevOps incidents
+    responses:
+      - trigger: DatabaseHighConnections
+        actions:
+          - type: alert
+            notify: ["dba-team"]
+          - type: execute
+            command: "optimize-connections"
+            args:
+              - "--clean-idle"
+              - "--timeout=30"
+
+      - trigger: SlowQueries
+        actions:
+          - type: alert
+            notify: ["dba-team"]
+          - type: execute
+            command: "analyze-slow-queries"
+            args:
+              - "--generate-report"
+              - "--optimize-suggestions"
+
+      - trigger: NetworkBandwidthSaturation
+        actions:
+          - type: alert
+            notify: ["network-team"]
+          - type: execute
+            command: "traffic-analysis"
+            args:
+              - "--identify-top-consumers"
+              - "--suggest-optimizations"
+
+      - trigger: HighCPUUsage
+        actions:
+          - type: scale
+            target: deployment
+            scaling_factor: 1.5
+            max_replicas: 10
+            cooldown_period: 300s
+
+      - trigger: HighMemoryUsage
+        actions:
+          - type: alert
+            notify: ["ops-team"]
+          - type: scale
+            target: deployment
+            scaling_factor: 1.2
+            max_replicas: 8
+            cooldown_period: 300s
+
+      - trigger: ServiceDown
+        actions:
+          - type: restart
+            target: pod
+            max_attempts: 3
+            interval: 60s
+          - type: alert
+            notify: ["sre-team", "dev-team"]
+            priority: high
+
+      - trigger: HighErrorRate
+        actions:
+          - type: alert
+            notify: ["dev-team"]
+          - type: rollback
+            target: deployment
+            timeout: 300s

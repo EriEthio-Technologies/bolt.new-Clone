@@ -1,0 +1,47 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: api-alerts
+  namespace: monitoring
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+  - name: api.rules
+    rules:
+    - alert: HighErrorRate
+      expr: sum(rate(http_requests_total{status=~"5.*"}[5m])) / sum(rate(http_requests_total[5m])) > 0.05
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: High API error rate detected
+        description: Error rate is above 5% for the last 5 minutes
+
+    - alert: APILatencyHigh
+      expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 2
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: High API latency detected
+        description: 95th percentile latency is above 2 seconds
+
+    - alert: APIAvailabilityLow
+      expr: avg_over_time(up{job="api"}[5m]) < 0.9
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: API availability is below threshold
+        description: API availability is below 90% in the last 5 minutes
+
+    - alert: RateLimitExceeded
+      expr: sum(rate(rate_limit_exceeded_total[5m])) > 100
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: High rate of rate limit violations
+        description: More than 100 rate limit violations per second detected

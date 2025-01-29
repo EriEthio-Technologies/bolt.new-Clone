@@ -41,8 +41,14 @@ export function Chat() {
            * @todo Handle more types if we need them. This may require extra color palettes.
            */
           switch (type) {
+            case 'info': {
+              return <div className="i-ph:info-bold text-bolt-elements-icon-info text-2xl" />;
+            }
             case 'success': {
               return <div className="i-ph:check-bold text-bolt-elements-icon-success text-2xl" />;
+            }
+            case 'warning': {
+              return <div className="i-ph:warning-bold text-bolt-elements-icon-warning text-2xl" />;
             }
             case 'error': {
               return <div className="i-ph:warning-circle-bold text-bolt-elements-icon-error text-2xl" />;

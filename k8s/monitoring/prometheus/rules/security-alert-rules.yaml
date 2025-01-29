@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: security-alert-rules
+  namespace: monitoring
+data:
+  security.rules: |
+    groups:
+    - name: security_alerts
+      rules:
+      - alert: HighFailedLogins
+        expr: rate(failed_login_attempts_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: critical
+          category: security
+        annotations:
+          summary: High number of failed login attempts
+          description: Detected more than 10 failed login attempts per minute
+
+      - alert: UnauthorizedAccessAttempts
+        expr: rate(unauthorized_access_attempts_total[5m]) > 5
+        for: 5m
+        labels:
+          severity: critical
+          category: security
+        annotations:
+          summary: Unauthorized access attempts detected
+          description: Multiple unauthorized access attempts detected in the last 5 minutes
+
+      - alert: SuspiciousIPActivity
+        expr: rate(suspicious_ip_requests_total[5m]) > 20
+        for: 5m
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: Suspicious IP activity detected
+          description: High rate of requests from suspicious IPs
+
+      - alert: AnomalousRequestPattern
+        expr: rate(anomalous_requests_total[5m]) > 50
+        for: 5m
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: Anomalous request pattern detected
+          description: Unusual pattern of requests detected in the last 5 minutes

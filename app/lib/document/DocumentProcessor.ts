@@ -2,22 +2,58 @@ import { Service } from 'typedi';
 import * as pdf from 'pdf-parse';
 import { Encryption } from '../security/encryption';
 
-interface DocumentValidationResult {
-  isValid: boolean;
-  errors: string[];
-  metadata?: {
-    pageCount?: number;
-    title?: string;
-    author?: string;
-    creationDate?: Date;
-  };
-}
+import { ProcessingResult, ValidationResult, ProcessingOptions, DocumentMetadata } from './types';
+import { PDFProcessor } from './PDFProcessor';
 
 @Service()
 export class DocumentProcessor {
-  constructor(private encryption: Encryption) {}
+  constructor(
+    private encryption: Encryption,
+    private pdfProcessor: PDFProcessor
+  ) {}
 
-  async processPDF(buffer: Buffer): Promise<DocumentValidationResult> {
+  async processDocument(
+    buffer: Buffer, 
+    type: string,
+    options: ProcessingOptions = {}
+  ): Promise<ProcessingResult> {
+    const validationResult = await this.validateDocument(buffer, type, options);
+    
+    if (!validationResult.isValid) {
+      throw new Error(`Document validation failed: ${validationResult.errors.join(', ')}`);
+    }
+
+    let result: ProcessingResult;
+
+    switch (type.toLowerCase()) {
+      case 'pdf':
+        const pdfResult = await this.pdfProcessor.processPDF(buffer);
+        result = {
+          content: pdfResult.content,
+          metadata: pdfResult.metadata
+        };
+        break;
+      default:
+        throw new Error(`Unsupported document type: ${type}`);
+    }
+
+    if (options.validateContent && !result.content) {
+      throw new Error('Document processing failed: No content extracted');
+    }
+
+    // Encrypt content if needed
+    if (result.content) {
+      result.content = await this.encryption.encrypt(result.content);
+    }
+
+    return result;
+  }
+
+  async validateDocument(
+    buffer: Buffer, 
+    type: string,
+    options: ProcessingOptions = {}
+  ): Promise<ValidationResult> {
     try {
       const pdfProcessor = new PDFProcessor();
       const result = await pdfProcessor.processPDF(buffer);

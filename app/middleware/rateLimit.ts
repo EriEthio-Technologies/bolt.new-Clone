@@ -1,44 +1,67 @@
-import { rateLimit } from 'express-rate-limit';
-import { validateEnv } from '~/config/env.server';
-import { RateLimitError } from '~/errors/RateLimitError';
+import { Request, Response, NextFunction } from 'express';
+import rateLimit from 'express-rate-limit';
+import { MonitoringService } from '../services/monitoring.server';
+import { AppError } from '../utils/errorHandler';
+import { securityConfig } from '../config/security';
 
-const env = validateEnv();
+export class RateLimiter {
+  private static instance: RateLimiter;
+  private readonly monitoring: MonitoringService;
+  private readonly limiter: ReturnType<typeof rateLimit>;
 
-export const rateLimitMiddleware = rateLimit({
-  windowMs: env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000, // 15 minutes default
-  max: env.RATE_LIMIT_MAX_REQUESTS || 100, // 100 requests per windowMs
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false,
-  message: 'Too many requests, please try again later',
-  handler: (req, res, next) => {
-    // Record rate limit hit in metrics
-    const { MetricsService } = require('~/services/MetricsService');
-    MetricsService.recordRateLimit(req.path);
-    next(new RateLimitError('Rate limit exceeded'));
-  },
-  skip: (req) => {
-    // Skip rate limiting for health checks and internal requests
-    return req.path === '/health' || req.ip === '127.0.0.1';
-  },
-  keyGenerator: (req) => {
-    // Use IP and optional API key for rate limiting
-    return req.headers['x-api-key'] || req.ip;
-  },
-  // Advanced options
-  skipSuccessfulRequests: false, // Count successful requests against limit
-  skipFailedRequests: false,     // Count failed requests against limit
-  requestWasSuccessful: (req, res) => res.statusCode < 400, // Define what constitutes a successful request
-  
-  // Use trusted headers for rate limiting behind proxy
-  keyGenerator: (req) => {
-    const forwardedFor = req.headers['x-forwarded-for'];
-    const clientIp = Array.isArray(forwardedFor) 
-      ? forwardedFor[0] 
-      : (forwardedFor?.split(',')[0] || req.ip);
-    return `${clientIp}:${req.headers['x-api-key'] || ''}`;
-  },
-  skip: (req) => {
-    // Skip rate limiting for certain routes if needed
-    return req.path.startsWith('/public');
+  private constructor() {
+    this.monitoring = MonitoringService.getInstance();
+    this.limiter = this.createLimiter();
   }
-}); 
+
+  public static getInstance(): RateLimiter {
+    if (!RateLimiter.instance) {
+      RateLimiter.instance = new RateLimiter();
+    }
+    return RateLimiter.instance;
+  }
+
+  private createLimiter() {
+    const config = securityConfig.rateLimiting;
+    
+    return rateLimit({
+      windowMs: config.windowMs,
+      max: config.max,
+      message: config.message,
+      standardHeaders: true,
+      legacyHeaders: false,
+      handler: (req: Request, res: Response) => {
+        const error = new AppError(429, 'Too many requests');
+        this.monitoring.emitAlert('rateLimitExceeded', {
+          ip: req.ip,
+          path: req.path,
+          timestamp: new Date().toISOString()
+        });
+        res.status(error.statusCode).json({
+          status: 'error',
+          message: error.message
+        });
+      },
+      skip: (req: Request) => {
+        // Skip rate limiting for health checks and monitoring endpoints
+        return req.path === '/health' || req.path === '/metrics';
+      }
+    });
+  }
+
+  public getMiddleware(): ReturnType<typeof rateLimit> {
+    return this.limiter;
+  }
+
+  public handleError(error: Error, req: Request, res: Response, next: NextFunction): void {
+    this.monitoring.emitAlert('rateLimitError', {
+      error: error.message,
+      ip: req.ip,
+      path: req.path
+    });
+    next(new AppError(500, 'Rate limiting error: ' + error.message));
+  }
+}
+
+// Export singleton instance
+export default RateLimiter.getInstance().getMiddleware();

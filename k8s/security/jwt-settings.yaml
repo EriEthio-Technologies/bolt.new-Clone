@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jwt-settings
+  namespace: default
+data:
+  JWT_EXPIRATION: "1800"  # 30 minutes
+  JWT_REFRESH_EXPIRATION: "604800"  # 7 days
+  JWT_ISSUER: "code-editor-app"
+  JWT_ALGORITHM: "RS256"
+  RATE_LIMIT_WINDOW: "900"  # 15 minutes
+  RATE_LIMIT_MAX_REQUESTS: "100"
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: jwt-auth-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: auth-service
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+    - ports:
+        - protocol: TCP
+          port: 3000
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: redis
+    - ports:
+        - protocol: TCP
+          port: 6379

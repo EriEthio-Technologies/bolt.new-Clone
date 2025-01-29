@@ -16,33 +16,79 @@ interface RateLimitState {
 }
 
 class RateLimiter {
+  private redisLimiter: RedisRateLimiter;
+  
   constructor(
     private config: RateLimitConfig,
-    private type: 'authenticated' | 'unauthenticated',
-    private context: { env: { RATE_LIMIT_STORE: KVNamespace } }
-  ) {}
+    private type: 'authenticated' | 'unauthenticated'
+  ) {
+    this.redisLimiter = new RedisRateLimiter({
+      windowMs: config.windowMs,
+      max: config.max,
+      keyPrefix: `rate_limit:${type}:`
+    });
+  }
 
-  private getKey(request: Request): string {
+  private getIdentifier(request: Request): string {
     if (this.type === 'authenticated') {
-      return `rate_limit:auth:${request.headers.get('x-api-key')}`;
+      return request.headers.get('x-api-key') || 'anonymous';
     }
-    return `rate_limit:unauth:${request.headers.get('cf-connecting-ip') || request.headers.get('x-forwarded-for') || '0.0.0.0'}`;
+    return request.headers.get('cf-connecting-ip') || 
+           request.headers.get('x-forwarded-for') || 
+           '0.0.0.0';
+  }
+
+  private async shouldBypassRateLimit(request: Request): Promise<boolean> {
+    // Bypass for internal services
+    if (request.headers.get('x-internal-service') === process.env.INTERNAL_SERVICE_KEY) {
+      return true;
+    }
+    
+    // Bypass for admin roles
+    const authHeader = request.headers.get('authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      try {
+        const decoded = await verify(token, process.env.JWT_SECRET!);
+        if (decoded.role === 'admin') {
+          return true;
+        }
+      } catch (e) {
+        // Invalid token, continue with rate limiting
+      }
+    }
+    
+    // Bypass for whitelisted IPs
+    const clientIP = request.headers.get('cf-connecting-ip') || 
+                    request.headers.get('x-forwarded-for') || 
+                    '0.0.0.0';
+    const whitelistedIPs = process.env.RATE_LIMIT_WHITELIST?.split(',') || [];
+    if (whitelistedIPs.includes(clientIP)) {
+      return true;
+    }
+    
+    return false;
   }
 
   async checkRateLimit(request: Request): Promise<void> {
-    const key = this.getKey(request);
-    const now = Date.now();
+    // Check for rate limit bypass
+    if (await this.shouldBypassRateLimit(request)) {
+      return;
+    }
 
-    // Get state from cache or KV store
-    const state: RateLimitState = await getRateLimitState(key, this.context.env.RATE_LIMIT_STORE) || {
-      count: 0,
-      resetTime: now + this.config.windowMs
-    };
-
-    // Reset if window has passed
-    if (now > state.resetTime) {
-      state.count = 0;
-      state.resetTime = now + this.config.windowMs;
+    const identifier = this.getIdentifier(request);
+    const result = await this.redisLimiter.increment(identifier);
+    
+    if (!result.isAllowed) {
+      const resetTime = Date.now() + this.config.windowMs;
+      const headers = new Headers({
+        'X-RateLimit-Limit': this.config.max.toString(),
+        'X-RateLimit-Remaining': '0',
+        'X-RateLimit-Reset': Math.ceil(resetTime / 1000).toString(),
+        'Retry-After': Math.ceil(this.config.windowMs / 1000).toString()
+      });
+      
+      throw new RateLimitError('Rate limit exceeded', headers);
     }
 
     if (state.count >= this.config.max) {
@@ -91,13 +137,20 @@ const unauthenticatedLimiter = (context: { env: { RATE_LIMIT_STORE: KVNamespace 
 );
 
 // Middleware function compatible with Cloudflare Workers
-export async function rateLimitMiddleware(request: Request, context?: { env: { RATE_LIMIT_STORE: KVNamespace } }): Promise<void> {
-  if (!context?.env?.RATE_LIMIT_STORE) {
-    console.warn('Rate limiting disabled: KV store not configured');
+export async function rateLimitMiddleware(request: Request): Promise<void> {
+  // Skip rate limiting for health checks and local requests
+  if (request.url.includes('/health') || request.headers.get('host')?.includes('localhost')) {
     return;
   }
 
-  // Skip rate limiting for health checks and local requests
+  try {
+    const limiter = new RateLimiter(
+      {
+        windowMs: 15 * 60 * 1000, // 15 minutes
+        max: 100, // limit each IP to 100 requests per windowMs
+      },
+      request.headers.get('x-api-key') ? 'authenticated' : 'unauthenticated'
+    );
   const url = new URL(request.url);
   if (url.pathname === '/health' || request.headers.get('cf-connecting-ip') === '127.0.0.1') {
     return;

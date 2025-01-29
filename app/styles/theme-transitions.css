@@ -1,0 +1,25 @@
+/* Theme transition styles */
+:root {
+  --theme-transition-duration: 200ms;
+  --theme-transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  transition: 
+    background-color var(--theme-transition-duration) var(--theme-transition-timing),
+    color var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+/* Add smooth transitions for common UI elements */
+.bg-bolt-elements-background-depth-1,
+.bg-bolt-elements-background-depth-2,
+.bg-bolt-elements-terminals-background,
+.bg-bolt-elements-terminals-buttonBackground,
+.border-bolt-elements-borderColor,
+.text-bolt-elements-textPrimary,
+.text-bolt-elements-textSecondary {
+  transition: 
+    background-color var(--theme-transition-duration) var(--theme-transition-timing),
+    border-color var(--theme-transition-duration) var(--theme-transition-timing),
+    color var(--theme-transition-duration) var(--theme-transition-timing);
+}
