@@ -51,7 +51,7 @@ The application is deployed to Google Cloud Platform. Make sure you have the nec
 Yes, Gobeze.AI is in beta, and we are actively improving it based on feedback.
 
 **How can I report issues?**
-Check out the [Issues section](https://github.com/yourusername/gobeze-ai/issues) to report an issue or request a new feature. Please use the search feature to check if someone else has already submitted the same issue/request.
+Check out the [Issues section](https://github.com/nawedy/gobeze-ai/issues) to report an issue or request a new feature. Please use the search feature to check if someone else has already submitted the same issue/request.
 
 **What frameworks are supported?**
 Gobeze.AI supports most popular JavaScript frameworks and libraries out of the box.
