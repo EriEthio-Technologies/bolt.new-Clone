@@ -4,11 +4,11 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "REMIX_CONFIG_PATH=remix.config.mjs remix build",
+    "build": "REMIX_CONFIG_PATH=remix.config.mjs npx @remix-run/dev build",
     "dev": "remix dev --manual",
     "start": "remix-serve ./build/index.js",
     "typecheck": "tsc",
-    "test": "vitest watch",
+    "test": "vitest run",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint --ext .js,.jsx,.ts,.tsx . --fix",
     "analyze": "npm run lint && npm run security && npm run metrics",
@@ -17,23 +17,33 @@
     "performance": "clinic doctor -- node dist/server.js",
     "ci": "npm run test && npm run analyze",
     "validate-monitoring": "ts-node scripts/validateMonitoringConfig.ts",
-    "predeploy": "npm run validate-env && npm run validate-monitoring"
+    "predeploy": "npm run validate-env && npm run validate-monitoring",
+    "validate-env": "node scripts/validate-env.js"
   },
   "dependencies": {
     "@atproto/api": "^0.6.23",
+    "@nanostores/react": "^0.8.4",
     "@remix-run/node": "^2.3.1",
     "@remix-run/react": "^2.3.1",
     "@remix-run/serve": "^2.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@webcontainer/api": "^1.5.1-internal.7",
     "ai": "^2.2.31",
+    "diff": "^7.0.0",
     "ioredis": "^5.3.2",
     "isbot": "^3.6.8",
+    "jsdom": "^26.0.0",
     "marked": "^5.0.2",
+    "nanostores": "^0.11.3",
+    "path-browserify": "^1.0.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "devDependencies": {
-    "@remix-run/dev": "^2.3.1",
+    "@remix-run/dev": "^2.15.2",
     "@remix-run/eslint-config": "^2.3.1",
+    "@types/express": "^5.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
@@ -51,7 +61,8 @@
     "snyk": "^1.0.0",
     "sonarqube-scanner": "^3.0.0",
     "typescript": "^5.1.6",
-    "vitest": "^0.34.1"
+    "vite-plugin-node-polyfills": "^0.23.0",
+    "vitest": "^0.34.6"
   },
   "engines": {
     "node": ">=18.0.0"

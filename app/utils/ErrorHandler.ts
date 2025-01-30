@@ -1,4 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
+import { AIServiceError } from '~/errors/AIServiceError';
+import { createScopedLogger } from './logger';
+
+const logger = createScopedLogger('ErrorHandler');
 
 export class AppError extends Error {
   constructor(
@@ -42,3 +46,30 @@ export const asyncHandler = (fn: Function) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
 };
+
+export class ErrorHandler {
+  static handle(error: unknown): void {
+    if (error instanceof AIServiceError) {
+      logger.error('AI Service Error:', error.message);
+      // Handle AI-specific errors
+      return;
+    }
+
+    if (error instanceof Error) {
+      logger.error('Application Error:', error.message);
+      // Handle general errors
+      return;
+    }
+
+    logger.error('Unknown Error:', error);
+  }
+
+  static async handleAsync<T>(promise: Promise<T>): Promise<T> {
+    try {
+      return await promise;
+    } catch (error) {
+      this.handle(error);
+      throw error;
+    }
+  }
+}

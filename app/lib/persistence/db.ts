@@ -1,8 +1,86 @@
 import type { Message } from 'ai';
 import { createScopedLogger } from '~/utils/logger';
 import type { ChatHistoryItem } from './useChatHistory';
+import Redis from 'ioredis';
 
-const logger = createScopedLogger('ChatHistory');
+const logger = createScopedLogger('Database');
+
+class Database {
+  private redis: Redis;
+
+  constructor() {
+    this.redis = new Redis({
+      host: process.env.REDIS_HOST || 'localhost',
+      port: parseInt(process.env.REDIS_PORT || '6379'),
+      password: process.env.REDIS_PASSWORD,
+      retryStrategy: (times) => {
+        const delay = Math.min(times * 50, 2000);
+        return delay;
+      },
+    });
+
+    this.redis.on('error', (error) => {
+      logger.error('Redis connection error:', error);
+    });
+
+    this.redis.on('connect', () => {
+      logger.info('Connected to Redis');
+    });
+  }
+
+  async get(key: string): Promise<string | null> {
+    try {
+      return await this.redis.get(key);
+    } catch (error) {
+      logger.error('Failed to get value from Redis:', error);
+      throw error;
+    }
+  }
+
+  async set(key: string, value: string, ttl?: number): Promise<void> {
+    try {
+      if (ttl) {
+        await this.redis.set(key, value, 'EX', ttl);
+      } else {
+        await this.redis.set(key, value);
+      }
+    } catch (error) {
+      logger.error('Failed to set value in Redis:', error);
+      throw error;
+    }
+  }
+
+  async delete(key: string): Promise<void> {
+    try {
+      await this.redis.del(key);
+    } catch (error) {
+      logger.error('Failed to delete value from Redis:', error);
+      throw error;
+    }
+  }
+
+  async exists(key: string): Promise<boolean> {
+    try {
+      const result = await this.redis.exists(key);
+      return result === 1;
+    } catch (error) {
+      logger.error('Failed to check key existence in Redis:', error);
+      throw error;
+    }
+  }
+
+  async disconnect(): Promise<void> {
+    try {
+      await this.redis.quit();
+      logger.info('Disconnected from Redis');
+    } catch (error) {
+      logger.error('Failed to disconnect from Redis:', error);
+      throw error;
+    }
+  }
+}
+
+export const db = new Database();
 
 // this is used at the top level and never rejects
 export async function openDatabase(): Promise<IDBDatabase | undefined> {

@@ -4,7 +4,7 @@ steps:
     entrypoint: npm
     args: ['ci']
     env:
-      - 'REMIX_CONFIG_PATH=remix.config.cjs'
+      - 'REMIX_CONFIG_PATH=remix.config.mjs'
       - 'NODE_ENV=production'
 
   # Deploy to App Engine
@@ -12,7 +12,7 @@ steps:
     entrypoint: 'gcloud'
     args: ['app', 'deploy', 'app.yaml', '--quiet']
     env:
-      - 'REMIX_CONFIG_PATH=remix.config.cjs'
+      - 'REMIX_CONFIG_PATH=remix.config.mjs'
       - 'NODE_ENV=production'
 
 timeout: '1800s' 

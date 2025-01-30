@@ -1,67 +1,61 @@
 import { Request, Response, NextFunction } from 'express';
-import rateLimit from 'express-rate-limit';
-import { MonitoringService } from '../services/monitoring.server';
-import { AppError } from '../utils/errorHandler';
-import { securityConfig } from '../config/security';
+import Redis from 'ioredis';
+import { createScopedLogger } from '~/utils/logger';
+import { AppError } from '~/utils/ErrorHandler';
 
-export class RateLimiter {
-  private static instance: RateLimiter;
-  private readonly monitoring: MonitoringService;
-  private readonly limiter: ReturnType<typeof rateLimit>;
+const logger = createScopedLogger('RateLimit');
 
-  private constructor() {
-    this.monitoring = MonitoringService.getInstance();
-    this.limiter = this.createLimiter();
+const RATE_LIMIT_WINDOW = 60; // 1 minute
+const MAX_REQUESTS = 100; // Maximum requests per window
+
+class RateLimiter {
+  private redis: Redis;
+
+  constructor() {
+    this.redis = new Redis({
+      host: process.env.REDIS_HOST || 'localhost',
+      port: parseInt(process.env.REDIS_PORT || '6379'),
+      password: process.env.REDIS_PASSWORD,
+    });
   }
 
-  public static getInstance(): RateLimiter {
-    if (!RateLimiter.instance) {
-      RateLimiter.instance = new RateLimiter();
-    }
-    return RateLimiter.instance;
-  }
-
-  private createLimiter() {
-    const config = securityConfig.rateLimiting;
+  async isRateLimited(ip: string): Promise<boolean> {
+    const key = `rate_limit:${ip}`;
     
-    return rateLimit({
-      windowMs: config.windowMs,
-      max: config.max,
-      message: config.message,
-      standardHeaders: true,
-      legacyHeaders: false,
-      handler: (req: Request, res: Response) => {
-        const error = new AppError(429, 'Too many requests');
-        this.monitoring.emitAlert('rateLimitExceeded', {
-          ip: req.ip,
-          path: req.path,
-          timestamp: new Date().toISOString()
-        });
-        res.status(error.statusCode).json({
-          status: 'error',
-          message: error.message
-        });
-      },
-      skip: (req: Request) => {
-        // Skip rate limiting for health checks and monitoring endpoints
-        return req.path === '/health' || req.path === '/metrics';
+    try {
+      const requests = await this.redis.incr(key);
+      
+      if (requests === 1) {
+        await this.redis.expire(key, RATE_LIMIT_WINDOW);
       }
-    });
-  }
-
-  public getMiddleware(): ReturnType<typeof rateLimit> {
-    return this.limiter;
-  }
-
-  public handleError(error: Error, req: Request, res: Response, next: NextFunction): void {
-    this.monitoring.emitAlert('rateLimitError', {
-      error: error.message,
-      ip: req.ip,
-      path: req.path
-    });
-    next(new AppError(500, 'Rate limiting error: ' + error.message));
+      
+      return requests > MAX_REQUESTS;
+    } catch (error) {
+      logger.error('Rate limit check failed:', error);
+      return false; // Fail open if Redis is unavailable
+    }
   }
 }
 
-// Export singleton instance
-export default RateLimiter.getInstance().getMiddleware();
+const rateLimiter = new RateLimiter();
+
+export const rateLimitMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+  const ip = req.ip || req.socket.remoteAddress || 'unknown';
+  
+  try {
+    const isLimited = await rateLimiter.isRateLimited(ip);
+    
+    if (isLimited) {
+      throw new AppError(429, 'Too many requests. Please try again later.');
+    }
+    
+    next();
+  } catch (error) {
+    if (error instanceof AppError) {
+      next(error);
+    } else {
+      logger.error('Rate limit middleware error:', error);
+      next(new AppError(500, 'Internal server error'));
+    }
+  }
+};

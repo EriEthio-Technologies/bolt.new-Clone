@@ -1,13 +1,15 @@
 import type { PathWatcherEvent, WebContainer } from '@webcontainer/api';
 import { getEncoding } from 'istextorbinary';
 import { map, type MapStore } from 'nanostores';
-import { Buffer } from 'node:buffer';
-import * as nodePath from 'node:path';
+import { Buffer } from 'buffer';
+import * as nodePath from 'path';
 import { bufferWatchEvents } from '~/utils/buffer';
 import { WORK_DIR } from '~/utils/constants';
 import { computeFileModifications } from '~/utils/diff';
 import { createScopedLogger } from '~/utils/logger';
 import { unreachable } from '~/utils/unreachable';
+import { isText } from '~/utils/is-binary';
+import { relative } from '~/utils/path';
 
 const logger = createScopedLogger('FilesStore');
 
@@ -84,7 +86,7 @@ export class FilesStore {
     const webcontainer = await this.#webcontainer;
 
     try {
-      const relativePath = nodePath.relative(webcontainer.workdir, filePath);
+      const relativePath = relative(webcontainer.workdir, filePath);
 
       if (!relativePath) {
         throw new Error(`EINVAL: invalid file path, write '${relativePath}'`);
@@ -202,7 +204,7 @@ function isBinaryFile(buffer: Uint8Array | undefined) {
     return false;
   }
 
-  return getEncoding(convertToBuffer(buffer), { chunkLength: 100 }) === 'binary';
+  return isText(buffer);
 }
 
 /**
@@ -218,3 +220,5 @@ function convertToBuffer(view: Uint8Array): Buffer {
 
   return buffer as Buffer;
 }
+
+export const filesStore = new FilesStore(Promise.resolve(new WebContainer()));

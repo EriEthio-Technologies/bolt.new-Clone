@@ -1,9 +1,10 @@
 import { WebContainer } from '@webcontainer/api';
 import { map, type MapStore } from 'nanostores';
-import * as nodePath from 'node:path';
+import * as nodePath from 'path';
 import type { GobezeAIAction } from '~/types/actions';
 import { createScopedLogger } from '~/utils/logger';
 import { unreachable } from '~/utils/unreachable';
+import { dirname } from '~/utils/path';
 import type { ActionCallbackData } from './message-parser';
 
 const logger = createScopedLogger('ActionRunner');
@@ -156,7 +157,7 @@ export class ActionRunner {
 
     const webcontainer = await this.#webcontainer;
 
-    let folder = nodePath.dirname(action.filePath);
+    let folder = dirname(action.filePath);
 
     // remove trailing slashes
     folder = folder.replace(/\/+$/g, '');
@@ -184,25 +185,3 @@ export class ActionRunner {
     this.actions.setKey(id, { ...actions[id], ...newState });
   }
 }
-
-/* Update terminal variables */
---gobezeai-elements-terminal-backgroundColor: var(--gobezeai-terminal-background);
---gobezeai-elements-terminal-textColor: var(--gobezeai-terminal-foreground);
---gobezeai-elements-terminal-cursorColor: var(--gobezeai-terminal-foreground);
---gobezeai-elements-terminal-selection-backgroundColor: var(--gobezeai-terminal-selection-background);
---gobezeai-elements-terminal-color-black: var(--gobezeai-terminal-black);
---gobezeai-elements-terminal-color-red: var(--gobezeai-terminal-red);
---gobezeai-elements-terminal-color-green: var(--gobezeai-terminal-green);
---gobezeai-elements-terminal-color-yellow: var(--gobezeai-terminal-yellow);
---gobezeai-elements-terminal-color-blue: var(--gobezeai-terminal-blue);
---gobezeai-elements-terminal-color-magenta: var(--gobezeai-terminal-magenta);
---gobezeai-elements-terminal-color-cyan: var(--gobezeai-terminal-cyan);
---gobezeai-elements-terminal-color-white: var(--gobezeai-terminal-white);
---gobezeai-elements-terminal-color-brightBlack: var(--gobezeai-terminal-brightBlack);
---gobezeai-elements-terminal-color-brightRed: var(--gobezeai-terminal-brightRed);
---gobezeai-elements-terminal-color-brightGreen: var(--gobezeai-terminal-brightGreen);
---gobezeai-elements-terminal-color-brightYellow: var(--gobezeai-terminal-brightYellow);
---gobezeai-elements-terminal-color-brightBlue: var(--gobezeai-terminal-brightBlue);
---gobezeai-elements-terminal-color-brightMagenta: var(--gobezeai-terminal-brightMagenta);
---gobezeai-elements-terminal-color-brightCyan: var(--gobezeai-terminal-brightCyan);
---gobezeai-elements-terminal-color-brightWhite: var(--gobezeai-terminal-brightWhite);

@@ -1,7 +1,7 @@
 {
   "name": "gobeze-ai-vscode",
   "displayName": "Gobeze AI",
-  "description": "AI-powered development tools for VS Code",
+  "description": "An advanced AI-powered development assistant",
   "version": "0.1.0",
   "publisher": "gobeze",
   "engines": {

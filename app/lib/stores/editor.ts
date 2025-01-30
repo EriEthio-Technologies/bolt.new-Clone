@@ -1,6 +1,7 @@
 import { atom, computed, map, type MapStore, type WritableAtom } from 'nanostores';
 import type { EditorDocument, ScrollPosition } from '~/components/editor/codemirror/CodeMirrorEditor';
 import type { FileMap, FilesStore } from './files';
+import { filesStore } from './files';
 
 export type EditorDocuments = Record<string, EditorDocument>;
 
@@ -93,3 +94,5 @@ export class EditorStore {
     }
   }
 }
+
+export const editorStore = new EditorStore(filesStore);

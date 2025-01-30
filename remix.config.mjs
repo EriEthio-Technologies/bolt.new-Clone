@@ -1,11 +1,18 @@
 /** @type {import('@remix-run/dev').AppConfig} */
-module.exports = {
+export default {
   ignoredRouteFiles: ["**/.*"],
-  appDirectory: "app",
-  assetsBuildDirectory: "public/build",
-  publicPath: "/build/",
-  serverBuildPath: "build/index.js",
-  serverModuleFormat: "cjs",
+  browserNodeBuiltinsPolyfill: {
+    modules: { path: true },
+    globals: {
+      Buffer: true,
+      process: true,
+    },
+  },
+  // appDirectory: "app",
+  // assetsBuildDirectory: "public/build",
+  // publicPath: "/build/",
+  // serverBuildPath: "build/index.js",
+  serverModuleFormat: "esm",
   serverPlatform: "node",
   serverDependenciesToBundle: ["marked", "@atproto/api"],
   future: {
