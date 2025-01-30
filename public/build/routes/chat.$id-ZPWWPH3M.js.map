@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["empty-module:@remix-run/cloudflare", "../../../app/routes/chat.$id.tsx"],
-  "sourcesContent": ["module.exports = {};", "// REMIX HMR BEGIN\nimport * as __hmr__ from \"remix:hmr\";\nif (import.meta) {\nimport.meta.hot = __hmr__.createHotContext(\n//@ts-expect-error\n\"app/routes/chat.$id.tsx\"\n);\nimport.meta.hot.lastModified = \"1737602845913.2124\";\n}\n// REMIX HMR END\n\nimport { json, type LoaderFunctionArgs } from '@remix-run/cloudflare';\nimport { default as IndexRoute } from './_index';\n\nexport async function loader(args: LoaderFunctionArgs) {\n  return json({ id: args.params.id });\n}\n\nexport default IndexRoute;\n"],
-  "mappings": ";;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA,WAAO,UAAU,CAAC;AAAA;AAAA;;;ACWlB,wBAA8C;AAT9C,IAAI,aAAa;AACjB,cAAY,MAAc;AAAA;AAAA,IAE1B;AAAA,EACA;AACA,cAAY,IAAI,eAAe;AAC/B;AAUA,IAAO,kBAAQ;",
-  "names": []
-}

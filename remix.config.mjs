@@ -27,5 +27,6 @@ export default {
     return defineRoutes((route) => {
       route("/", "routes/_index.tsx");
     });
-  }
+  },
+  tailwind: true,
 };

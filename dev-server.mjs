@@ -1,26 +1,34 @@
-import { createServer } from 'vite';
+import { createRequestHandler } from '@remix-run/express';
+import { installGlobals } from '@remix-run/node';
+import express from 'express';
+import compression from 'compression';
+import morgan from 'morgan';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
+installGlobals();
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const BUILD_DIR = join(__dirname, 'build');
 
-async function startServer() {
-  const vite = await createServer({
-    root: __dirname,
-    server: {
-      port: 3000,
-      hmr: true,
-    },
-    optimizeDeps: {
-      include: ['@remix-run/react', '@remix-run/node'],
-    },
-  });
+const app = express();
 
-  await vite.listen();
-  console.log('Development server running at http://localhost:3000');
-}
+app.use(compression());
+app.use(morgan('tiny'));
 
-startServer().catch((error) => {
-  console.error('Failed to start development server:', error);
-  process.exit(1);
+// Handle asset requests
+app.use(express.static('public', { maxAge: '1h' }));
+
+// Handle data requests
+app.all(
+  '*',
+  createRequestHandler({
+    build: await import('./build/index.js'),
+    mode: 'development',
+  }),
+);
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Development server running at http://localhost:${port}`);
 }); 
