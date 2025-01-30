@@ -1,0 +1,30 @@
+--cm-tooltip-textColorSelected: var(
+  --gobezeai-elements-editor-tooltip-textColorSelected,
+  var(--gobezeai-elements-textPrimary)
+);
+
+--cm-tooltip-borderColor: var(--gobezeai-elements-editor-tooltip-borderColor, var(--gobezeai-elements-borderColor));
+
+--cm-searchMatch-backgroundColor: var(--gobezeai-elements-editor-searchMatch-backgroundColor, rgba(234, 92, 0, 0.33));
+
+html[data-theme='light'] {
+  --gobezeai-elements-editor-gutter-textColor: #237893;
+  --gobezeai-elements-editor-gutter-activeLineTextColor: var(--gobezeai-elements-textPrimary);
+  --gobezeai-elements-editor-foldGutter-textColorHover: var(--gobezeai-elements-textPrimary);
+  --gobezeai-elements-editor-activeLineBackgroundColor: rgb(50 53 63 / 5%);
+  --gobezeai-elements-editor-tooltip-backgroundColorSelected: theme('colors.alpha.accent.20');
+  --gobezeai-elements-editor-search-button-backgroundColor: theme('colors.gray.100');
+  --gobezeai-elements-editor-search-button-backgroundColorHover: theme('colors.alpha.gray.10');
+}
+
+html[data-theme='dark'] {
+  --cm-backgroundColor: var(--gobezeai-elements-bg-depth-2);
+  --gobezeai-elements-editor-gutter-textColor: var(--gobezeai-elements-textTertiary);
+  --gobezeai-elements-editor-gutter-activeLineTextColor: var(--gobezeai-elements-textSecondary);
+  --gobezeai-elements-editor-selection-inactiveBackgroundOpacity: 0.3;
+  --gobezeai-elements-editor-activeLineBackgroundColor: rgb(50 53 63 / 50%);
+  --gobezeai-elements-editor-foldGutter-textColorHover: var(--gobezeai-elements-textPrimary);
+  --gobezeai-elements-editor-matchingBracketBackgroundColor: rgba(66, 180, 255, 0.3);
+  --gobezeai-elements-editor-search-button-backgroundColor: theme('colors.gray.800');
+  --gobezeai-elements-editor-search-button-backgroundColorHover: theme('colors.alpha.white.10');
+} 

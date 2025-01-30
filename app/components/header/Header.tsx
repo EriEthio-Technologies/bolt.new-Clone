@@ -1,41 +1,33 @@
-import { useStore } from '@nanostores/react';
-import { ClientOnly } from 'remix-utils/client-only';
-import { chatStore } from '~/lib/stores/chat';
-import { classNames } from '~/utils/classNames';
-import { HeaderActionButtons } from './HeaderActionButtons.client';
-import { ChatDescription } from '~/lib/persistence/ChatDescription.client';
+import { Link } from '@remix-run/react';
+import clsx from 'clsx';
+import { useChat } from '~/lib/stores/chat';
+import HeaderActionButtons from './HeaderActionButtons.client';
 
-export function Header() {
-  const chat = useStore(chatStore);
+export default function Header() {
+  const chat = useChat();
 
   return (
     <header
-      className={classNames(
-        'flex items-center bg-bolt-elements-background-depth-1 p-5 border-b h-[var(--header-height)]',
+      className={clsx(
+        'flex items-center bg-gobezeai-elements-background-depth-1 p-5 border-b h-[var(--header-height)]',
+        'border-transparent transition-[border-color]',
         {
-          'border-transparent': !chat.started,
-          'border-bolt-elements-borderColor': chat.started,
+          'border-gobezeai-elements-borderColor': chat.started,
         },
       )}
     >
-      <div className="flex items-center gap-2 z-logo text-bolt-elements-textPrimary cursor-pointer">
-        <div className="i-ph:sidebar-simple-duotone text-xl" />
-        <a href="/" className="text-2xl font-semibold text-accent flex items-center">
-          <span className="i-bolt:logo-text?mask w-[46px] inline-block" />
-        </a>
-      </div>
-      <span className="flex-1 px-4 truncate text-center text-bolt-elements-textPrimary">
-        <ClientOnly>{() => <ChatDescription />}</ClientOnly>
+      <Link to="/">
+        <div className="flex items-center gap-2 z-logo text-gobezeai-elements-textPrimary cursor-pointer">
+          <span className="i-gobezeai:logo w-[24px] inline-block" />
+          <span className="i-gobezeai:logo-text?mask w-[46px] inline-block" />
+        </div>
+      </Link>
+
+      <span className="flex-1 px-4 truncate text-center text-gobezeai-elements-textPrimary">
+        {chat.title}
       </span>
-      {chat.started && (
-        <ClientOnly>
-          {() => (
-            <div className="mr-1">
-              <HeaderActionButtons />
-            </div>
-          )}
-        </ClientOnly>
-      )}
+
+      <HeaderActionButtons />
     </header>
   );
 }

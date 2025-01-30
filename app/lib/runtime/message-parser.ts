@@ -1,24 +1,36 @@
-import type { ActionType, BoltAction, BoltActionData, FileAction, ShellAction } from '../../../src/types/actions';
-import type { BoltArtifactData } from '../../../src/types/artifact';
+import type { ActionType, GobezeAIAction, GobezeAIActionData, FileAction, ShellAction } from '../../../src/types/actions';
+import type { GobezeAIArtifactData } from '../../../src/types/artifact';
 import { createScopedLogger } from '../../../src/utils/logger';
 import { unreachable } from '../../../src/utils/unreachable';
 
-const ARTIFACT_TAG_OPEN = '<boltArtifact';
-const ARTIFACT_TAG_CLOSE = '</boltArtifact>';
-const ARTIFACT_ACTION_TAG_OPEN = '<boltAction';
-const ARTIFACT_ACTION_TAG_CLOSE = '</boltAction>';
+const ARTIFACT_TAG_OPEN = '<gobezeArtifact';
+const ARTIFACT_TAG_CLOSE = '</gobezeArtifact>';
+const ARTIFACT_ACTION_TAG_OPEN = '<gobezeAction';
+const ARTIFACT_ACTION_TAG_CLOSE = '</gobezeAction>';
 
 const logger = createScopedLogger('MessageParser');
 
-export interface ArtifactCallbackData extends BoltArtifactData {
-  messageId: string;
+export interface StreamingMessageParserCallbacks {
+  onText: (text: string) => void;
+}
+
+export interface ArtifactCallbackData extends GobezeAIArtifactData {
+  onActionOpen?: (action: ActionType) => void;
+  onActionClose?: () => void;
 }
 
 export interface ActionCallbackData {
-  artifactId: string;
-  messageId: string;
-  actionId: string;
-  action: BoltAction;
+  type: ActionType;
+  action: GobezeAIAction;
+}
+
+export interface StreamingMessageParserState {
+  buffer: string;
+  isInArtifact: boolean;
+  isInAction: boolean;
+  currentArtifact?: GobezeAIArtifactData;
+  currentAction: GobezeAIActionData;
+  callbacks: StreamingMessageParserCallbacks;
 }
 
 export type ArtifactCallback = (data: ArtifactCallbackData) => void;
@@ -46,8 +58,8 @@ interface MessageState {
   position: number;
   insideArtifact: boolean;
   insideAction: boolean;
-  currentArtifact?: BoltArtifactData;
-  currentAction: BoltActionData;
+  currentArtifact?: GobezeAIArtifactData;
+  currentAction: GobezeAIActionData;
   actionId: number;
 }
 
@@ -100,17 +112,8 @@ export class StreamingMessageParser {
             currentAction.content = content;
 
             this._options.callbacks?.onActionClose?.({
-              artifactId: currentArtifact.id,
-              messageId,
-
-              /**
-               * We decrement the id because it's been incremented already
-               * when `onActionOpen` was emitted to make sure the ids are
-               * the same.
-               */
-              actionId: String(state.actionId - 1),
-
-              action: currentAction as BoltAction,
+              type: currentAction.type,
+              action: currentAction as GobezeAIAction,
             });
 
             state.insideAction = false;
@@ -133,10 +136,8 @@ export class StreamingMessageParser {
               state.currentAction = this.#parseActionTag(input, actionOpenIndex, actionEndIndex);
 
               this._options.callbacks?.onActionOpen?.({
-                artifactId: currentArtifact.id,
-                messageId,
-                actionId: String(state.actionId++),
-                action: state.currentAction as BoltAction,
+                type: state.currentAction.type,
+                action: state.currentAction as GobezeAIAction,
               });
 
               i = actionEndIndex + 1;
@@ -144,7 +145,7 @@ export class StreamingMessageParser {
               break;
             }
           } else if (artifactCloseIndex !== -1) {
-            this._options.callbacks?.onArtifactClose?.({ messageId, ...currentArtifact });
+            this._options.callbacks?.onArtifactClose?.({ ...currentArtifact });
 
             state.insideArtifact = false;
             state.currentArtifact = undefined;
@@ -191,11 +192,11 @@ export class StreamingMessageParser {
               const currentArtifact = {
                 id: artifactId,
                 title: artifactTitle,
-              } satisfies BoltArtifactData;
+              } satisfies GobezeAIArtifactData;
 
               state.currentArtifact = currentArtifact;
 
-              this._options.callbacks?.onArtifactOpen?.({ messageId, ...currentArtifact });
+              this._options.callbacks?.onArtifactOpen?.({ ...currentArtifact });
 
               const artifactFactory = this._options.artifactElement ?? createArtifactElement;
 
@@ -271,7 +272,7 @@ export class StreamingMessageParser {
 
 const createArtifactElement: ElementFactory = (props) => {
   const elementProps = [
-    'class="__boltArtifact__"',
+    'class="__gobezeArtifact__"',
     ...Object.entries(props).map(([key, value]) => {
       return `data-${camelToDashCase(key)}=${JSON.stringify(value)}`;
     }),

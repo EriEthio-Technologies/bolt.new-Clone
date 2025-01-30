@@ -1,17 +1,18 @@
 export type ActionType = 'shell' | 'file'
 
-export interface BoltActionData {
+export interface GobezeAIActionData {
     type?: ActionType
     content: string
 }
 
-export interface ShellAction extends BoltActionData {
+export interface ShellAction extends GobezeAIActionData {
     type: 'shell'
+    command: string
 }
 
-export interface FileAction extends BoltActionData {
+export interface FileAction extends GobezeAIActionData {
     type: 'file'
     filePath: string
 }
 
-export type BoltAction = ShellAction | FileAction 
+export type GobezeAIAction = ShellAction | FileAction 

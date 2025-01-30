@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Bolt.new Help Center
-    url: https://support.bolt.new
-    about: Official central repository for tips, tricks, tutorials, known issues, and best practices for bolt.new usage.
-  - name: Billing Issues
-    url: https://support.bolt.new/Billing-13fd971055d680ebb393cb80973710b6
-    about: Instructions for billing and subscription related support
-  - name: Discord Chat
-    url: https://discord.gg/stackblitz
-    about: Build, share, and learn with other Bolters in real time.
+  - name: GobezeAI Help Center
+    url: https://support.gobezeai.new
+    about: Official central repository for tips, tricks, tutorials, known issues, and best practices for gobezeai.new usage.
+  - name: Billing & Subscription
+    url: https://support.gobezeai.new/Billing-13fd971055d680ebb393cb80973710b6
+    about: Learn more about our billing and subscription options.
+  - name: Discord Community
+    url: https://discord.gg/gobezeai
+    about: Build, share, and learn with other GobezeAI users in real time.

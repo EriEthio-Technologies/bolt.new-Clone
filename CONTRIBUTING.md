@@ -1,4 +1,4 @@
-[![Bolt Open Source Codebase](./public/social_preview_index.jpg)](https://bolt.new)
+[![GobezeAI Open Source Codebase](./public/social_preview_index.jpg)](https://gobezeai.new)
 
 # Gobeze AI
 

@@ -1,17 +1,18 @@
 .Toastify__toast {
   --at-apply: shadow-md;
 
-  background-color: var(--bolt-elements-bg-depth-2);
-  color: var(--bolt-elements-textPrimary);
-  border: 1px solid var(--bolt-elements-borderColor);
+  border-radius: 6px !important;
+  background-color: var(--gobezeai-elements-bg-depth-2);
+  color: var(--gobezeai-elements-textPrimary);
+  border: 1px solid var(--gobezeai-elements-borderColor);
 }
 
 .Toastify__close-button {
-  color: var(--bolt-elements-item-contentDefault);
+  color: var(--gobezeai-elements-item-contentDefault);
   opacity: 1;
   transition: none;
 
   &:hover {
-    color: var(--bolt-elements-item-contentActive);
+    color: var(--gobezeai-elements-item-contentActive);
   }
 }

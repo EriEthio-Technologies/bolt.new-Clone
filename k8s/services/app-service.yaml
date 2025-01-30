@@ -1,20 +1,82 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: gobeze-ai-app
-  namespace: gobeze-ai
+  name: gobeze-ai-app-service
+  namespace: production
   labels:
     app: gobeze-ai
     component: api
   annotations:
     cloud.google.com/neg: '{"ingress": true}'
+    cloud.google.com/backend-config: '{"default": "gobeze-ai-backend-config"}'
 spec:
   type: ClusterIP
   ports:
-  - port: 80
-    targetPort: 8080
-    protocol: TCP
-    name: http
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 9090
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
   selector:
     app: gobeze-ai
-    component: api 
+    component: api
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: gobeze-ai-backend-config
+  namespace: production
+spec:
+  healthCheck:
+    checkIntervalSec: 15
+    timeoutSec: 5
+    healthyThreshold: 2
+    unhealthyThreshold: 3
+    type: HTTP
+    requestPath: /health
+    port: 3000
+  cdn:
+    enabled: true
+    cachePolicy:
+      includeHost: true
+      includeProtocol: true
+      includeQueryString: false
+  securityPolicy:
+    name: "gobeze-ai-security-policy"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gobeze-ai-ingress
+  namespace: production
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: "gobeze-ai-static-ip"
+    networking.gke.io/managed-certificates: "gobeze-ai-managed-cert"
+    networking.gke.io/v1beta1.FrontendConfig: "gobeze-ai-frontend-config"
+spec:
+  rules:
+  - host: "api.gobeze.ai"  # Replace with your domain
+    http:
+      paths:
+      - path: /*
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: gobeze-ai-app-service
+            port:
+              number: 80
+---
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: gobeze-ai-frontend-config
+  namespace: production
+spec:
+  redirectToHttps:
+    enabled: true
+    responseCodeName: MOVED_PERMANENTLY_DEFAULT
+  sslPolicy: "gobeze-ai-ssl-policy" 

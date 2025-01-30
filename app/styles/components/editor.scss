@@ -1,135 +1,135 @@
-:root {
-  --cm-backgroundColor: var(--bolt-elements-editor-backgroundColor, var(--bolt-elements-bg-depth-1));
-  --cm-textColor: var(--bolt-elements-editor-textColor, var(--bolt-elements-textPrimary));
+.cm-editor {
+  --cm-backgroundColor: var(--gobezeai-elements-editor-backgroundColor, var(--gobezeai-elements-bg-depth-1));
+  --cm-textColor: var(--gobezeai-elements-editor-textColor, var(--gobezeai-elements-textPrimary));
 
   /* Gutter */
 
-  --cm-gutter-backgroundColor: var(--bolt-elements-editor-gutter-backgroundColor, var(--cm-backgroundColor));
-  --cm-gutter-textColor: var(--bolt-elements-editor-gutter-textColor, var(--bolt-elements-textSecondary));
-  --cm-gutter-activeLineTextColor: var(--bolt-elements-editor-gutter-activeLineTextColor, var(--cm-gutter-textColor));
+  --cm-gutter-backgroundColor: var(--gobezeai-elements-editor-gutter-backgroundColor, var(--cm-backgroundColor));
+  --cm-gutter-textColor: var(--gobezeai-elements-editor-gutter-textColor, var(--gobezeai-elements-textSecondary));
+  --cm-gutter-activeLineTextColor: var(--gobezeai-elements-editor-gutter-activeLineTextColor, var(--cm-gutter-textColor));
 
   /* Fold Gutter */
 
-  --cm-foldGutter-textColor: var(--bolt-elements-editor-foldGutter-textColor, var(--cm-gutter-textColor));
-  --cm-foldGutter-textColorHover: var(--bolt-elements-editor-foldGutter-textColorHover, var(--cm-gutter-textColor));
+  --cm-foldGutter-textColor: var(--gobezeai-elements-editor-foldGutter-textColor, var(--cm-gutter-textColor));
+  --cm-foldGutter-textColorHover: var(--gobezeai-elements-editor-foldGutter-textColorHover, var(--cm-gutter-textColor));
 
   /* Active Line */
 
-  --cm-activeLineBackgroundColor: var(--bolt-elements-editor-activeLineBackgroundColor, rgb(224 231 235 / 30%));
+  --cm-activeLineBackgroundColor: var(--gobezeai-elements-editor-activeLineBackgroundColor, rgb(224 231 235 / 30%));
 
   /* Cursor */
 
   --cm-cursor-width: 2px;
-  --cm-cursor-backgroundColor: var(--bolt-elements-editor-cursorColor, var(--bolt-elements-textSecondary));
+  --cm-cursor-backgroundColor: var(--gobezeai-elements-editor-cursorColor, var(--gobezeai-elements-textSecondary));
 
   /* Matching Brackets */
 
-  --cm-matching-bracket: var(--bolt-elements-editor-matchingBracketBackgroundColor, rgb(50 140 130 / 0.3));
+  --cm-matching-bracket: var(--gobezeai-elements-editor-matchingBracketBackgroundColor, rgb(50 140 130 / 0.3));
 
   /* Selection */
 
-  --cm-selection-backgroundColorFocused: var(--bolt-elements-editor-selection-backgroundColor, #42b4ff);
-  --cm-selection-backgroundOpacityFocused: var(--bolt-elements-editor-selection-backgroundOpacity, 0.3);
-  --cm-selection-backgroundColorBlured: var(--bolt-elements-editor-selection-inactiveBackgroundColor, #c9e9ff);
-  --cm-selection-backgroundOpacityBlured: var(--bolt-elements-editor-selection-inactiveBackgroundOpacity, 0.3);
+  --cm-selection-backgroundColorFocused: var(--gobezeai-elements-editor-selection-backgroundColor, #42b4ff);
+  --cm-selection-backgroundOpacityFocused: var(--gobezeai-elements-editor-selection-backgroundOpacity, 0.3);
+  --cm-selection-backgroundColorBlured: var(--gobezeai-elements-editor-selection-inactiveBackgroundColor, #c9e9ff);
+  --cm-selection-backgroundOpacityBlured: var(--gobezeai-elements-editor-selection-inactiveBackgroundOpacity, 0.3);
 
   /* Panels */
 
-  --cm-panels-borderColor: var(--bolt-elements-editor-panels-borderColor, var(--bolt-elements-borderColor));
+  --cm-panels-borderColor: var(--gobezeai-elements-editor-panels-borderColor, var(--gobezeai-elements-borderColor));
 
   /* Search */
 
-  --cm-search-backgroundColor: var(--bolt-elements-editor-search-backgroundColor, var(--cm-backgroundColor));
-  --cm-search-textColor: var(--bolt-elements-editor-search-textColor, var(--bolt-elements-textSecondary));
-  --cm-search-closeButton-backgroundColor: var(--bolt-elements-editor-search-closeButton-backgroundColor, transparent);
+  --cm-search-backgroundColor: var(--gobezeai-elements-editor-search-backgroundColor, var(--cm-backgroundColor));
+  --cm-search-textColor: var(--gobezeai-elements-editor-search-textColor, var(--gobezeai-elements-textSecondary));
+  --cm-search-closeButton-backgroundColor: var(--gobezeai-elements-editor-search-closeButton-backgroundColor, transparent);
 
   --cm-search-closeButton-backgroundColorHover: var(
-    --bolt-elements-editor-search-closeButton-backgroundColorHover,
-    var(--bolt-elements-item-backgroundActive)
+    --gobezeai-elements-editor-search-closeButton-backgroundColorHover,
+    var(--gobezeai-elements-item-backgroundActive)
   );
 
   --cm-search-closeButton-textColor: var(
-    --bolt-elements-editor-search-closeButton-textColor,
-    var(--bolt-elements-item-contentDefault)
+    --gobezeai-elements-editor-search-closeButton-textColor,
+    var(--gobezeai-elements-item-contentDefault)
   );
 
   --cm-search-closeButton-textColorHover: var(
-    --bolt-elements-editor-search-closeButton-textColorHover,
-    var(--bolt-elements-item-contentActive)
+    --gobezeai-elements-editor-search-closeButton-textColorHover,
+    var(--gobezeai-elements-item-contentActive)
   );
 
   --cm-search-button-backgroundColor: var(
-    --bolt-elements-editor-search-button-backgroundColor,
-    var(--bolt-elements-item-backgroundDefault)
+    --gobezeai-elements-editor-search-button-backgroundColor,
+    var(--gobezeai-elements-item-backgroundDefault)
   );
 
   --cm-search-button-backgroundColorHover: var(
-    --bolt-elements-editor-search-button-backgroundColorHover,
-    var(--bolt-elements-item-backgroundActive)
+    --gobezeai-elements-editor-search-button-backgroundColorHover,
+    var(--gobezeai-elements-item-backgroundActive)
   );
 
-  --cm-search-button-textColor: var(--bolt-elements-editor-search-button-textColor, var(--bolt-elements-textSecondary));
+  --cm-search-button-textColor: var(--gobezeai-elements-editor-search-button-textColor, var(--gobezeai-elements-textSecondary));
 
   --cm-search-button-textColorHover: var(
-    --bolt-elements-editor-search-button-textColorHover,
-    var(--bolt-elements-textPrimary)
+    --gobezeai-elements-editor-search-button-textColorHover,
+    var(--gobezeai-elements-textPrimary)
   );
 
-  --cm-search-button-borderColor: var(--bolt-elements-editor-search-button-borderColor, transparent);
-  --cm-search-button-borderColorHover: var(--bolt-elements-editor-search-button-borderColorHover, transparent);
+  --cm-search-button-borderColor: var(--gobezeai-elements-editor-search-button-borderColor, transparent);
+  --cm-search-button-borderColorHover: var(--gobezeai-elements-editor-search-button-borderColorHover, transparent);
 
   --cm-search-button-borderColorFocused: var(
-    --bolt-elements-editor-search-button-borderColorFocused,
-    var(--bolt-elements-borderColorActive)
+    --gobezeai-elements-editor-search-button-borderColorFocused,
+    var(--gobezeai-elements-borderColorActive)
   );
 
-  --cm-search-input-backgroundColor: var(--bolt-elements-editor-search-input-backgroundColor, transparent);
-  --cm-search-input-textColor: var(--bolt-elements-editor-search-input-textColor, var(--bolt-elements-textPrimary));
-  --cm-search-input-borderColor: var(--bolt-elements-editor-search-input-borderColor, var(--bolt-elements-borderColor));
+  --cm-search-input-backgroundColor: var(--gobezeai-elements-editor-search-input-backgroundColor, transparent);
+  --cm-search-input-textColor: var(--gobezeai-elements-editor-search-input-textColor, var(--gobezeai-elements-textPrimary));
+  --cm-search-input-borderColor: var(--gobezeai-elements-editor-search-input-borderColor, var(--gobezeai-elements-borderColor));
 
   --cm-search-input-borderColorFocused: var(
-    --bolt-elements-editor-search-input-borderColorFocused,
-    var(--bolt-elements-borderColorActive)
+    --gobezeai-elements-editor-search-input-borderColorFocused,
+    var(--gobezeai-elements-borderColorActive)
   );
 
   /* Tooltip */
 
-  --cm-tooltip-backgroundColor: var(--bolt-elements-editor-tooltip-backgroundColor, var(--cm-backgroundColor));
-  --cm-tooltip-textColor: var(--bolt-elements-editor-tooltip-textColor, var(--bolt-elements-textPrimary));
+  --cm-tooltip-backgroundColor: var(--gobezeai-elements-editor-tooltip-backgroundColor, var(--cm-backgroundColor));
+  --cm-tooltip-textColor: var(--gobezeai-elements-editor-tooltip-textColor, var(--gobezeai-elements-textPrimary));
 
   --cm-tooltip-backgroundColorSelected: var(
-    --bolt-elements-editor-tooltip-backgroundColorSelected,
-    theme('colors.alpha.accent.30')
+    --gobezeai-elements-editor-tooltip-backgroundColorSelected,
+    var(--cm-backgroundColor)
   );
 
   --cm-tooltip-textColorSelected: var(
-    --bolt-elements-editor-tooltip-textColorSelected,
-    var(--bolt-elements-textPrimary)
+    --gobezeai-elements-editor-tooltip-textColorSelected,
+    var(--gobezeai-elements-textPrimary)
   );
 
-  --cm-tooltip-borderColor: var(--bolt-elements-editor-tooltip-borderColor, var(--bolt-elements-borderColor));
+  --cm-tooltip-borderColor: var(--gobezeai-elements-editor-tooltip-borderColor, var(--gobezeai-elements-borderColor));
 
-  --cm-searchMatch-backgroundColor: var(--bolt-elements-editor-searchMatch-backgroundColor, rgba(234, 92, 0, 0.33));
+  --cm-searchMatch-backgroundColor: var(--gobezeai-elements-editor-searchMatch-backgroundColor, rgba(234, 92, 0, 0.33));
 }
 
 html[data-theme='light'] {
-  --bolt-elements-editor-gutter-textColor: #237893;
-  --bolt-elements-editor-gutter-activeLineTextColor: var(--bolt-elements-textPrimary);
-  --bolt-elements-editor-foldGutter-textColorHover: var(--bolt-elements-textPrimary);
-  --bolt-elements-editor-activeLineBackgroundColor: rgb(50 53 63 / 5%);
-  --bolt-elements-editor-tooltip-backgroundColorSelected: theme('colors.alpha.accent.20');
-  --bolt-elements-editor-search-button-backgroundColor: theme('colors.gray.100');
-  --bolt-elements-editor-search-button-backgroundColorHover: theme('colors.alpha.gray.10');
+  --gobezeai-elements-editor-gutter-textColor: #237893;
+  --gobezeai-elements-editor-gutter-activeLineTextColor: var(--gobezeai-elements-textPrimary);
+  --gobezeai-elements-editor-foldGutter-textColorHover: var(--gobezeai-elements-textPrimary);
+  --gobezeai-elements-editor-activeLineBackgroundColor: rgb(50 53 63 / 5%);
+  --gobezeai-elements-editor-tooltip-backgroundColorSelected: theme('colors.alpha.accent.20');
+  --gobezeai-elements-editor-search-button-backgroundColor: theme('colors.gray.100');
+  --gobezeai-elements-editor-search-button-backgroundColorHover: theme('colors.alpha.gray.10');
 }
 
 html[data-theme='dark'] {
-  --cm-backgroundColor: var(--bolt-elements-bg-depth-2);
-  --bolt-elements-editor-gutter-textColor: var(--bolt-elements-textTertiary);
-  --bolt-elements-editor-gutter-activeLineTextColor: var(--bolt-elements-textSecondary);
-  --bolt-elements-editor-selection-inactiveBackgroundOpacity: 0.3;
-  --bolt-elements-editor-activeLineBackgroundColor: rgb(50 53 63 / 50%);
-  --bolt-elements-editor-foldGutter-textColorHover: var(--bolt-elements-textPrimary);
-  --bolt-elements-editor-matchingBracketBackgroundColor: rgba(66, 180, 255, 0.3);
-  --bolt-elements-editor-search-button-backgroundColor: theme('colors.gray.800');
-  --bolt-elements-editor-search-button-backgroundColorHover: theme('colors.alpha.white.10');
+  --cm-backgroundColor: var(--gobezeai-elements-bg-depth-2);
+  --gobezeai-elements-editor-gutter-textColor: var(--gobezeai-elements-textTertiary);
+  --gobezeai-elements-editor-gutter-activeLineTextColor: var(--gobezeai-elements-textSecondary);
+  --gobezeai-elements-editor-selection-inactiveBackgroundOpacity: 0.3;
+  --gobezeai-elements-editor-activeLineBackgroundColor: rgb(50 53 63 / 50%);
+  --gobezeai-elements-editor-foldGutter-textColorHover: var(--gobezeai-elements-textPrimary);
+  --gobezeai-elements-editor-matchingBracketBackgroundColor: rgba(66, 180, 255, 0.3);
+  --gobezeai-elements-editor-search-button-backgroundColor: theme('colors.gray.800');
+  --gobezeai-elements-editor-search-button-backgroundColorHover: theme('colors.alpha.white.10');
 }

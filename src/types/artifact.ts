@@ -1,4 +1,5 @@
-export interface BoltArtifactData {
+export interface GobezeAIArtifactData {
     id: string
     title: string
+    content: string
 } 

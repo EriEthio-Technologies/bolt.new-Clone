@@ -5,7 +5,7 @@ import { defineConfig, presetIcons, presetUno, transformerDirectives } from 'uno
 
 const iconPaths = globSync('./icons/*.svg');
 
-const collectionName = 'bolt';
+const collectionName = 'gobezeai';
 
 const customIconCollection = iconPaths.reduce(
   (acc, iconPath) => {
@@ -99,9 +99,9 @@ const COLOR_PRIMITIVES = {
 
 export default defineConfig({
   shortcuts: {
-    'bolt-ease-cubic-bezier': 'ease-[cubic-bezier(0.4,0,0.2,1)]',
-    'transition-theme': 'transition-[background-color,border-color,color] duration-150 bolt-ease-cubic-bezier',
-    kdb: 'bg-bolt-elements-code-background text-bolt-elements-code-text py-1 px-1.5 rounded-md',
+    'gobezeai-ease-cubic-bezier': 'ease-[cubic-bezier(0.4,0,0.2,1)]',
+    'transition-theme': 'transition-[background-color,border-color,color] duration-150 gobezeai-ease-cubic-bezier',
+    kdb: 'bg-gobezeai-elements-code-background text-gobezeai-elements-code-text py-1 px-1.5 rounded-md',
     'max-w-chat': 'max-w-[var(--chat-max-width)]',
   },
   rules: [
@@ -114,115 +114,115 @@ export default defineConfig({
   theme: {
     colors: {
       ...COLOR_PRIMITIVES,
-      bolt: {
+      gobezeai: {
         elements: {
-          borderColor: 'var(--bolt-elements-borderColor)',
-          borderColorActive: 'var(--bolt-elements-borderColorActive)',
+          borderColor: 'var(--gobezeai-elements-borderColor)',
+          borderColorActive: 'var(--gobezeai-elements-borderColorActive)',
           background: {
             depth: {
-              1: 'var(--bolt-elements-bg-depth-1)',
-              2: 'var(--bolt-elements-bg-depth-2)',
-              3: 'var(--bolt-elements-bg-depth-3)',
-              4: 'var(--bolt-elements-bg-depth-4)',
+              1: 'var(--gobezeai-elements-bg-depth-1)',
+              2: 'var(--gobezeai-elements-bg-depth-2)',
+              3: 'var(--gobezeai-elements-bg-depth-3)',
+              4: 'var(--gobezeai-elements-bg-depth-4)',
             },
           },
-          textPrimary: 'var(--bolt-elements-textPrimary)',
-          textSecondary: 'var(--bolt-elements-textSecondary)',
-          textTertiary: 'var(--bolt-elements-textTertiary)',
+          textPrimary: 'var(--gobezeai-elements-textPrimary)',
+          textSecondary: 'var(--gobezeai-elements-textSecondary)',
+          textTertiary: 'var(--gobezeai-elements-textTertiary)',
           code: {
-            background: 'var(--bolt-elements-code-background)',
-            text: 'var(--bolt-elements-code-text)',
+            background: 'var(--gobezeai-elements-code-background)',
+            text: 'var(--gobezeai-elements-code-text)',
           },
           button: {
             primary: {
-              background: 'var(--bolt-elements-button-primary-background)',
-              backgroundHover: 'var(--bolt-elements-button-primary-backgroundHover)',
-              text: 'var(--bolt-elements-button-primary-text)',
+              background: 'var(--gobezeai-elements-button-primary-background)',
+              backgroundHover: 'var(--gobezeai-elements-button-primary-backgroundHover)',
+              text: 'var(--gobezeai-elements-button-primary-text)',
             },
             secondary: {
-              background: 'var(--bolt-elements-button-secondary-background)',
-              backgroundHover: 'var(--bolt-elements-button-secondary-backgroundHover)',
-              text: 'var(--bolt-elements-button-secondary-text)',
+              background: 'var(--gobezeai-elements-button-secondary-background)',
+              backgroundHover: 'var(--gobezeai-elements-button-secondary-backgroundHover)',
+              text: 'var(--gobezeai-elements-button-secondary-text)',
             },
             danger: {
-              background: 'var(--bolt-elements-button-danger-background)',
-              backgroundHover: 'var(--bolt-elements-button-danger-backgroundHover)',
-              text: 'var(--bolt-elements-button-danger-text)',
+              background: 'var(--gobezeai-elements-button-danger-background)',
+              backgroundHover: 'var(--gobezeai-elements-button-danger-backgroundHover)',
+              text: 'var(--gobezeai-elements-button-danger-text)',
             },
           },
           item: {
-            contentDefault: 'var(--bolt-elements-item-contentDefault)',
-            contentActive: 'var(--bolt-elements-item-contentActive)',
-            contentAccent: 'var(--bolt-elements-item-contentAccent)',
-            contentDanger: 'var(--bolt-elements-item-contentDanger)',
-            backgroundDefault: 'var(--bolt-elements-item-backgroundDefault)',
-            backgroundActive: 'var(--bolt-elements-item-backgroundActive)',
-            backgroundAccent: 'var(--bolt-elements-item-backgroundAccent)',
-            backgroundDanger: 'var(--bolt-elements-item-backgroundDanger)',
+            contentDefault: 'var(--gobezeai-elements-item-contentDefault)',
+            contentActive: 'var(--gobezeai-elements-item-contentActive)',
+            contentAccent: 'var(--gobezeai-elements-item-contentAccent)',
+            contentDanger: 'var(--gobezeai-elements-item-contentDanger)',
+            backgroundDefault: 'var(--gobezeai-elements-item-backgroundDefault)',
+            backgroundActive: 'var(--gobezeai-elements-item-backgroundActive)',
+            backgroundAccent: 'var(--gobezeai-elements-item-backgroundAccent)',
+            backgroundDanger: 'var(--gobezeai-elements-item-backgroundDanger)',
           },
           actions: {
-            background: 'var(--bolt-elements-actions-background)',
+            background: 'var(--gobezeai-elements-actions-background)',
             code: {
-              background: 'var(--bolt-elements-actions-code-background)',
+              background: 'var(--gobezeai-elements-actions-code-background)',
             },
           },
           artifacts: {
-            background: 'var(--bolt-elements-artifacts-background)',
-            backgroundHover: 'var(--bolt-elements-artifacts-backgroundHover)',
-            borderColor: 'var(--bolt-elements-artifacts-borderColor)',
+            background: 'var(--gobezeai-elements-artifacts-background)',
+            backgroundHover: 'var(--gobezeai-elements-artifacts-backgroundHover)',
+            borderColor: 'var(--gobezeai-elements-artifacts-borderColor)',
             inlineCode: {
-              background: 'var(--bolt-elements-artifacts-inlineCode-background)',
-              text: 'var(--bolt-elements-artifacts-inlineCode-text)',
+              background: 'var(--gobezeai-elements-artifacts-inlineCode-background)',
+              text: 'var(--gobezeai-elements-artifacts-inlineCode-text)',
             },
           },
           messages: {
-            background: 'var(--bolt-elements-messages-background)',
-            linkColor: 'var(--bolt-elements-messages-linkColor)',
+            background: 'var(--gobezeai-elements-messages-background)',
+            linkColor: 'var(--gobezeai-elements-messages-linkColor)',
             code: {
-              background: 'var(--bolt-elements-messages-code-background)',
+              background: 'var(--gobezeai-elements-messages-code-background)',
             },
             inlineCode: {
-              background: 'var(--bolt-elements-messages-inlineCode-background)',
-              text: 'var(--bolt-elements-messages-inlineCode-text)',
+              background: 'var(--gobezeai-elements-messages-inlineCode-background)',
+              text: 'var(--gobezeai-elements-messages-inlineCode-text)',
             },
           },
           icon: {
-            success: 'var(--bolt-elements-icon-success)',
-            error: 'var(--bolt-elements-icon-error)',
-            primary: 'var(--bolt-elements-icon-primary)',
-            secondary: 'var(--bolt-elements-icon-secondary)',
-            tertiary: 'var(--bolt-elements-icon-tertiary)',
+            success: 'var(--gobezeai-elements-icon-success)',
+            error: 'var(--gobezeai-elements-icon-error)',
+            primary: 'var(--gobezeai-elements-icon-primary)',
+            secondary: 'var(--gobezeai-elements-icon-secondary)',
+            tertiary: 'var(--gobezeai-elements-icon-tertiary)',
           },
           preview: {
             addressBar: {
-              background: 'var(--bolt-elements-preview-addressBar-background)',
-              backgroundHover: 'var(--bolt-elements-preview-addressBar-backgroundHover)',
-              backgroundActive: 'var(--bolt-elements-preview-addressBar-backgroundActive)',
-              text: 'var(--bolt-elements-preview-addressBar-text)',
-              textActive: 'var(--bolt-elements-preview-addressBar-textActive)',
+              background: 'var(--gobezeai-elements-preview-addressBar-background)',
+              backgroundHover: 'var(--gobezeai-elements-preview-addressBar-backgroundHover)',
+              backgroundActive: 'var(--gobezeai-elements-preview-addressBar-backgroundActive)',
+              text: 'var(--gobezeai-elements-preview-addressBar-text)',
+              textActive: 'var(--gobezeai-elements-preview-addressBar-textActive)',
             },
           },
           terminals: {
-            background: 'var(--bolt-elements-terminals-background)',
-            buttonBackground: 'var(--bolt-elements-terminals-buttonBackground)',
+            background: 'var(--gobezeai-elements-terminals-background)',
+            buttonBackground: 'var(--gobezeai-elements-terminals-buttonBackground)',
           },
-          dividerColor: 'var(--bolt-elements-dividerColor)',
+          dividerColor: 'var(--gobezeai-elements-dividerColor)',
           loader: {
-            background: 'var(--bolt-elements-loader-background)',
-            progress: 'var(--bolt-elements-loader-progress)',
+            background: 'var(--gobezeai-elements-loader-background)',
+            progress: 'var(--gobezeai-elements-loader-progress)',
           },
           prompt: {
-            background: 'var(--bolt-elements-prompt-background)',
+            background: 'var(--gobezeai-elements-prompt-background)',
           },
           sidebar: {
-            dropdownShadow: 'var(--bolt-elements-sidebar-dropdownShadow)',
-            buttonBackgroundDefault: 'var(--bolt-elements-sidebar-buttonBackgroundDefault)',
-            buttonBackgroundHover: 'var(--bolt-elements-sidebar-buttonBackgroundHover)',
-            buttonText: 'var(--bolt-elements-sidebar-buttonText)',
+            dropdownShadow: 'var(--gobezeai-elements-sidebar-dropdownShadow)',
+            buttonBackgroundDefault: 'var(--gobezeai-elements-sidebar-buttonBackgroundDefault)',
+            buttonBackgroundHover: 'var(--gobezeai-elements-sidebar-buttonBackgroundHover)',
+            buttonText: 'var(--gobezeai-elements-sidebar-buttonText)',
           },
           cta: {
-            background: 'var(--bolt-elements-cta-background)',
-            text: 'var(--bolt-elements-cta-text)',
+            background: 'var(--gobezeai-elements-cta-background)',
+            text: 'var(--gobezeai-elements-cta-text)',
           },
         },
       },
